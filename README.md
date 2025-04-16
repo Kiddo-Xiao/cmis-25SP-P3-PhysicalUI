@@ -59,7 +59,7 @@ pip install -r requirements.txt
 python BowArrowUI.py
 ```
 
-Make sure to place an STL model file in the `models` directory for the application to load. Now I'm using Bow_Arrow_Combined.stl which includes both bow and arrow (maybe we need to print them saperately later).
+Make sure to place an STL model file in the `models` directory for the application to load. You can modify it at in the final part `main()` of `BowArrowUI.py`. Now I'm using `Bow_Arrow_Combined.stl` which includes both bow and arrow (maybe we need to print them saperately later).
 
 ## Key Features
 
