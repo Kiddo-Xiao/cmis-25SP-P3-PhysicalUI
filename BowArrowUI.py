@@ -11,13 +11,11 @@ import numpy as np
 from BowArrowOpt import BowArrowOptimizer
 
 class BowArrowUI(QMainWindow):
-    def __init__(self):
+    def __init__(self, model_path):
         super().__init__()
         self.setWindowTitle("Bow Toy Optimizer")
         self.setGeometry(100, 100, 1000, 700)
         
-        # Initialize optimizer with default model path
-        model_path = 'models/Bow_Arrow_Combined.stl'
         try:
             self.optimizer = BowArrowOptimizer(model_path)
         except Exception as e:
@@ -358,13 +356,14 @@ def main():
     
     # Check if model file exists
     model_path = 'models/Bow.stl'
+    # model_path = 'models/Bow_Arrow_Combined.stl'
     if not os.path.exists(model_path):
         print(f"Warning: Model file not found at {model_path}")
         print("Please place your model file in the models directory.")
     
     # Start the application
     app = QApplication(sys.argv)
-    window = BowArrowUI()
+    window = BowArrowUI(model_path)
     window.show()
     sys.exit(app.exec_())
 
