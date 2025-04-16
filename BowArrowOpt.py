@@ -218,9 +218,10 @@ class BowArrowOptimizer:
                 for v_idx, vertex in enumerate(vertices):
                     rel_x = (vertex[0] - bow_center_x) / ((x_max - x_min) / 2)
                     
-                    # Only adjust thickness in the grip region
-                    if abs(rel_x) < 0.3:  # Grip region
-                        vertices[v_idx, 2] *= thickness_factor  # Adjust only the z-direction
+                    # Only adjust thickness in the grip's power region
+                    if rel_x < 0.2 and rel_x > -0.5:  # Grip's power region
+                        if vertices[v_idx, 2] >= 0:  # Modify thickness only one side for more convinience 3D print
+                            vertices[v_idx, 2] *= thickness_factor   # Adjust only the z-direction
                 
             else:
                 # Arrow component modifications if present

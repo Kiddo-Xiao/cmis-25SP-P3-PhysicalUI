@@ -96,9 +96,9 @@ class BowArrowUI(QMainWindow):
         
         # Bow thickness
         self.thickness_spin = QDoubleSpinBox()
-        self.thickness_spin.setRange(4.0, 7.0)
+        self.thickness_spin.setRange(4.0, 9.0)
         self.thickness_spin.setValue(5.0)
-        self.thickness_spin.setSingleStep(0.1)
+        self.thickness_spin.setSingleStep(0.5)
         self.thickness_spin.setSuffix(" mm")
         params_form.addRow("Bow Thickness:", self.thickness_spin)
         
