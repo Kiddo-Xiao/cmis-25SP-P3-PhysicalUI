@@ -2,6 +2,8 @@
 models/bunny_uniform.obj
 models/bunny.obj
 models/cow.off
+models/teddy_partitioned_30cm.obj
+
 data
 checkpoints
 __build/
