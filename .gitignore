@@ -1,8 +1,12 @@
 **/*.DS_Store
-# models
+models/bunny_uniform.obj
+models/bunny.obj
+models/cow.off
 data
 checkpoints
 __build/
+source/
+CMakeLists.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
