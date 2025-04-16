@@ -1,3 +1,9 @@
+**/*.DS_Store
+# models
+data
+checkpoints
+__build/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -172,3 +178,8 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+test.ipynb
+barplot_data.json
+logs/
+temp/
