@@ -22,6 +22,7 @@ This project consists of a physics-based optimization system for bow toy designs
 ### Getting Started
 
 1. You don't need to modify **BowArrowUI.py** - the UI is already complete
+![alt text](image.png)
 2. Focus your attention on **BowArrowOpt.py** where the physics and optimization logic lives
 3. Look for `TODO:` comments in BowArrowOpt.py for areas that need improvement
 
