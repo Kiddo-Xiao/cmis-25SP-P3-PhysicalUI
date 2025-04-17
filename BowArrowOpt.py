@@ -334,21 +334,31 @@ class BowArrowOptimizer:
         
         return estimated_speed
 
-    # TODO: Need more precise calculation for force
     def estimate_draw_force(self, bow_thickness, bow_curvature, limb_stiffness):
-        """Estimate force required to fully draw the bow"""
+        """Estimate force required to fully draw the bow.
+        
+        Equation: F=S²*UTS
+        F: bending force (N)
+        S: sheet thickness (mm)
+        UTS: ultimate tensile strength (N/mm²)
+
+        Source for equation: https://www.harsle.com/bending-force-calculator/
+        Source for tensile strength: https://pmc.ncbi.nlm.nih.gov/articles/PMC9572023
+        """
+        estimated_force = (bow_thickness ** 2) * 43.8
+        
         # Simple model for draw force:
         # - Proportional to thickness, stiffness
         # - Inversely proportional to flexibility
         
-        base_force = 4.0  # N (baseline force)
+        # base_force = 4.0  # N (baseline force)
         
-        estimated_force = (
-            base_force * 
-            (bow_thickness / 5.0) * 
-            (1 + 0.5 * bow_curvature) * 
-            limb_stiffness
-            )
+        # estimated_force = (
+        #     base_force * 
+        #     (bow_thickness / 5.0) * 
+        #     (1 + 0.5 * bow_curvature) * 
+        #     limb_stiffness
+        #     )
         
         return estimated_force
 
