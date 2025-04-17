@@ -216,6 +216,13 @@ class BowArrowUI(QMainWindow):
     
     def apply_parameters(self):
         """Apply the current parameter values to the optimizer"""
+        
+        # Reapply current profile first
+        profile_name = self.profile_combo.currentText()
+        palm_size = self.palm_size_spin.value()
+        speed_pref = self.speed_combo.currentText()
+        self.optimizer.set_user_profile(profile_name, palm_size, speed_pref)
+        
         # Get values from UI
         thickness = self.thickness_spin.value()
         curvature = self.curvature_spin.value()

@@ -21,8 +21,7 @@ class BowArrowOptimizer:
         self.arrow_length = 60.0       # mm
         self.arrow_weight = 2.0        # g
         self.tip_diameter = 8.0        # mm
-        self.tip_length = 5.0          # mm
-        
+        self.tip_length = 5.0          # mm        
         
         # User profiles with tailored parameters
         self.user_profiles = {
@@ -79,6 +78,7 @@ class BowArrowOptimizer:
     def set_user_profile(self, profile_name, palm_size=None, preferred_speed=None):
         """Set user profile and adjust parameters accordingly"""
         if profile_name in self.user_profiles:
+            self.current_user = profile_name # moved to top as logs are not updated correctly
             profile = self.user_profiles[profile_name]
             self.refresh_parameters(
                 profile['bow_thickness'], 
@@ -90,7 +90,6 @@ class BowArrowOptimizer:
                 profile['tip_diameter']
             )
             self.tip_length = profile['tip_length']
-            self.current_user = profile_name
             
             if palm_size:
                 self.palm_size = palm_size
@@ -124,6 +123,73 @@ class BowArrowOptimizer:
             self.bow_thickness *= 0.9
             
         print(f"Adjusted for palm size {self.palm_size:.1f}mm: Grip width = {self.grip_width:.1f}mm")
+        
+    # To calculate comfort score
+    def compute_comfort_score(self):
+        """Compute comfort score based on ergonomic heuristics and log debug data"""
+        os.makedirs("logs", exist_ok=True)
+        log_path = "logs/comfort_score_debug.txt"
+
+        # Heuristic weights
+        grip_score = 1.0
+        thickness_score = 1.0
+        stiffness_score = 1.0
+        curvature_score = 1.0
+
+        # 1. Grip Heuristics (based on palm size)
+        palm_factor = self.palm_size / (90.0 if self.current_user != 'Child' else 70.0)
+        grip_ratio = self.grip_width / (self.palm_size * 0.27)
+        if grip_ratio > 1.2:
+            grip_score = 0.7 if self.current_user == 'Child' else 0.9
+        elif grip_ratio < 0.8:
+            grip_score = 0.6
+        else:
+            grip_score = 1.0
+
+        # 2. Thickness Heuristics (penalize excess thickness for children or small palms)
+        if self.bow_thickness > 6.0 and self.palm_size < 75.0:
+            thickness_score = 0.6
+        elif self.bow_thickness < 4.5 and self.palm_size > 100.0:
+            thickness_score = 0.8
+        else:
+            thickness_score = 1.0
+
+        # 3. Stiffness Heuristics (softer is easier, good for small users)
+        if self.limb_stiffness > 0.7 and self.current_user == 'Child':
+            stiffness_score = 0.5
+        elif self.limb_stiffness < 0.5 and self.current_user == 'Professional':
+            stiffness_score = 0.7
+        else:
+            stiffness_score = 1.0
+
+        # 4. Curvature Heuristics (too high or low can be uncomfortable)
+        if 0.25 <= self.bow_curvature <= 0.35:
+            curvature_score = 1.0
+        else:
+            curvature_score = 0.8
+
+        # Final comfort score (weighted)
+        comfort_score = (
+            grip_score * 0.4 +
+            thickness_score * 0.3 +
+            stiffness_score * 0.2 +
+            curvature_score * 0.1
+        ) * 100
+
+        comfort_score = round(min(max(comfort_score, 0), 100), 1)
+
+        with open(log_path, "w", encoding="utf-8") as log_file:
+            log_file.write("=== Comfort Score Log ===\n")
+            log_file.write(f"User Type: {self.current_user}\n")
+            log_file.write(f"Palm Size: {self.palm_size} mm\n")
+            log_file.write(f"Grip Width: {self.grip_width:.2f} mm → Grip Score: {grip_score:.2f}\n")
+            log_file.write(f"Bow Thickness: {self.bow_thickness:.2f} mm → Thickness Score: {thickness_score:.2f}\n")
+            log_file.write(f"Limb Stiffness: {self.limb_stiffness:.2f} → Stiffness Score: {stiffness_score:.2f}\n")
+            log_file.write(f"Bow Curvature: {self.bow_curvature:.2f} → Curvature Score: {curvature_score:.2f}\n")
+            log_file.write(f"Final Comfort Score: {comfort_score:.1f}/100\n")
+
+        return comfort_score
+
 
     def adjust_for_speed(self):
         """Adjust parameters based on preferred shooting speed"""
@@ -503,8 +569,10 @@ class BowArrowOptimizer:
         accuracy_score = 70 + (self.limb_stiffness * 20)
         
         # TODO: Comfort score (need to add some user-friendly components on grip)
-        comfort_score = 0
-        
+        # comfort_score = 0
+        # Calculate comfort score from ergonomics
+        comfort_score = self.compute_comfort_score()
+
         # Safety score
         if self.current_user == 'Child':
             safety_threshold = 2.5  # m/s
