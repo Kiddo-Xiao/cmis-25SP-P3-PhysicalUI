@@ -79,4 +79,3 @@ The system uses a simplified physics model to calculate:
 - Flight distance estimation
 - Safety scores appropriate for different user groups
 
-Please let me know if you have any questions or need assistance with the implementation!
