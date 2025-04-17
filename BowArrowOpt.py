@@ -572,6 +572,9 @@ class BowArrowOptimizer:
         # comfort_score = 0
         # Calculate comfort score from ergonomics
         comfort_score = self.compute_comfort_score()
+        
+        # 3D Print Settings
+        self.get_print_settings()  # Log the dynamic 3D print settings
 
         # Safety score
         if self.current_user == 'Child':
@@ -635,7 +638,11 @@ class BowArrowOptimizer:
 
     # TODO: Optimization for 3D printing parameters   
     def get_print_settings(self):
-        """Dynamically recommend 3D print settings based on bow and arrow parameters"""
+        """Dynamically recommend 3D print settings based on bow and arrow parameters and log them"""
+
+        # Ensure logs directory exists
+        os.makedirs("logs", exist_ok=True)
+        log_path = "logs/print_settings_debug.txt"
 
         # Material choice based on stiffness and thickness
         if self.limb_stiffness > 0.7:
@@ -645,7 +652,7 @@ class BowArrowOptimizer:
         else:
             material = "PLA or TPU" if self.current_user == "Child" else "PLA"
 
-        # Layer height: finer for high curvature or stiff bows
+        # Layer height
         if self.bow_curvature > 0.33 or self.limb_stiffness > 0.7:
             layer_height = "0.12mm"
         elif self.bow_thickness > 5.5:
@@ -653,7 +660,7 @@ class BowArrowOptimizer:
         else:
             layer_height = "0.2mm"
 
-        # Infill: denser if high stiffness or thickness
+        # Infill
         if self.limb_stiffness > 0.7 or self.arrow_weight > 2.2:
             infill = "30%"
         elif self.bow_thickness > 5.5:
@@ -661,16 +668,30 @@ class BowArrowOptimizer:
         else:
             infill = "20%"
 
-        # Supports: only needed for extreme curvature
+        # Supports
         supports = "Yes" if self.bow_curvature > 0.36 else "No"
 
-        # Special instructions
+        # Instructions
         if "TPU" in material:
             instructions = "Print bow limbs with TPU for extra flexibility and safety"
         elif self.limb_stiffness > 0.7:
             instructions = "Print bow at 45° angle for better layer adhesion and strength"
         else:
             instructions = "Standard printing orientation is recommended"
+
+        # Write to log file
+        with open(log_path, "w", encoding="utf-8") as f:
+            f.write("=== 3D Print Settings Log ===\n")
+            f.write(f"User Type: {self.current_user}\n")
+            f.write(f"Limb Stiffness: {self.limb_stiffness:.2f}\n")
+            f.write(f"Bow Thickness: {self.bow_thickness:.2f} mm\n")
+            f.write(f"Bow Curvature: {self.bow_curvature:.2f}\n")
+            f.write(f"Arrow Weight: {self.arrow_weight:.2f} g\n")
+            f.write(f"Material: {material}\n")
+            f.write(f"Layer Height: {layer_height}\n")
+            f.write(f"Infill: {infill}\n")
+            f.write(f"Supports: {supports}\n")
+            f.write(f"Instructions: {instructions}\n")
 
         return {
             "material": material,
@@ -679,6 +700,7 @@ class BowArrowOptimizer:
             "supports": supports,
             "special_instructions": instructions
         }
+
 
     # def get_print_settings(self):
     #     """Get recommended print settings based on current parameters"""
