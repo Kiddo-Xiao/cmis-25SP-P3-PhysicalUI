@@ -634,29 +634,75 @@ class BowArrowOptimizer:
         return os.path.abspath(filename)
 
     # TODO: Optimization for 3D printing parameters   
+    def get_print_settings(self):
+        """Dynamically recommend 3D print settings based on bow and arrow parameters"""
+
+        # Material choice based on stiffness and thickness
+        if self.limb_stiffness > 0.7:
+            material = "Nylon or PETG"
+        elif self.bow_thickness < 5.0:
+            material = "PETG"
+        else:
+            material = "PLA or TPU" if self.current_user == "Child" else "PLA"
+
+        # Layer height: finer for high curvature or stiff bows
+        if self.bow_curvature > 0.33 or self.limb_stiffness > 0.7:
+            layer_height = "0.12mm"
+        elif self.bow_thickness > 5.5:
+            layer_height = "0.16mm"
+        else:
+            layer_height = "0.2mm"
+
+        # Infill: denser if high stiffness or thickness
+        if self.limb_stiffness > 0.7 or self.arrow_weight > 2.2:
+            infill = "30%"
+        elif self.bow_thickness > 5.5:
+            infill = "25%"
+        else:
+            infill = "20%"
+
+        # Supports: only needed for extreme curvature
+        supports = "Yes" if self.bow_curvature > 0.36 else "No"
+
+        # Special instructions
+        if "TPU" in material:
+            instructions = "Print bow limbs with TPU for extra flexibility and safety"
+        elif self.limb_stiffness > 0.7:
+            instructions = "Print bow at 45° angle for better layer adhesion and strength"
+        else:
+            instructions = "Standard printing orientation is recommended"
+
+        return {
+            "material": material,
+            "layer_height": layer_height,
+            "infill": infill,
+            "supports": supports,
+            "special_instructions": instructions
+        }
+
     # def get_print_settings(self):
-        """Get recommended print settings based on current parameters"""
-        if self.current_user == 'Child':
-            return {
-                'material': 'PLA or TPU',
-                'layer_height': '0.2mm',
-                'infill': '20%',
-                'supports': 'No',
-                'special_instructions': 'Print bow limbs with TPU for extra safety and flexibility'
-            }
-        elif self.current_user == 'Professional':
-            return {
-                'material': 'PETG or Nylon',
-                'layer_height': '0.12mm',
-                'infill': '30%',
-                'supports': 'No',
-                'special_instructions': 'Print bow at 45° angle for better layer adhesion and strength'
-            }
-        else:  # Adult
-            return {
-                'material': 'PLA or PETG',
-                'layer_height': '0.16mm',
-                'infill': '25%',
-                'supports': 'No',
-                'special_instructions': 'Standard printing orientation is recommended'
-            }
+    #     """Get recommended print settings based on current parameters"""
+    #     if self.current_user == 'Child':
+    #         return {
+    #             'material': 'PLA or TPU',
+    #             'layer_height': '0.2mm',
+    #             'infill': '20%',
+    #             'supports': 'No',
+    #             'special_instructions': 'Print bow limbs with TPU for extra safety and flexibility'
+    #         }
+    #     elif self.current_user == 'Professional':
+    #         return {
+    #             'material': 'PETG or Nylon',
+    #             'layer_height': '0.12mm',
+    #             'infill': '30%',
+    #             'supports': 'No',
+    #             'special_instructions': 'Print bow at 45° angle for better layer adhesion and strength'
+    #         }
+    #     else:  # Adult
+    #         return {
+    #             'material': 'PLA or PETG',
+    #             'layer_height': '0.16mm',
+    #             'infill': '25%',
+    #             'supports': 'No',
+    #             'special_instructions': 'Standard printing orientation is recommended'
+    #         }
