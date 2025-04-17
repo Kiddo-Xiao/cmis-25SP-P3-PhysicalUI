@@ -305,20 +305,6 @@ This is the objective function used in the optimization process to find the best
 - Applies penalty functions when constraints are violated
 - Adapts optimization target based on user's palm size
 
-**Implementation Details:**
-```python
-# Calculate weighted sum of squared errors
-cost = (
-    weight_thickness * (bow_thickness - target_bow_thickness)**2 +
-    weight_curvature * (bow_curvature - target_bow_curvature)**2 +
-    weight_stiffness * (limb_stiffness - target_limb_stiffness)**2
-)
-
-# Add safety constraint penalties
-if estimated_launch_speed > max_safe_speed:
-    cost += safety_weight * 5.0 * (estimated_launch_speed - max_safe_speed)**2
-```
-
 ### `optimize_model()`
 
 This method runs the optimization algorithm to find the best parameters for the current user profile.
@@ -338,27 +324,6 @@ This method runs the optimization algorithm to find the best parameters for the 
 - Includes random variations to simulate manufacturing tolerances
 - Ensures optimized parameters stay within defined bounds
 - Automatically calculates matching arrow parameters for the optimized bow
-
-**Implementation Details:**
-```python
-def optimize_model(self):
-    # Get current user profile
-    current_profile = self.user_profiles[self.current_user]
-    
-    # Define initial guess and bounds based on user profile
-    initial_guess = [self.bow_thickness, self.bow_curvature, self.limb_stiffness]
-    bounds = [...] # Varies by user profile
-    
-    # Run optimization
-    result = minimize(obj_func, initial_guess, method='L-BFGS-B', bounds=bounds)
-    
-    # Apply small random variations and ensure parameters stay within bounds
-    # ...
-    
-    # Update all parameters and apply geometry changes
-    self.refresh_parameters(...)
-    self.apply_geometry_update()
-```
 
 **Suggested Improvements**
 
