@@ -483,60 +483,112 @@ class BowArrowOptimizer:
 
     # TODO: User can not directly change arrow so this need to rewrite to fit the size of the bow!
     def calculate_optimal_arrow_length(self, bow_thickness, bow_curvature):
-        """Calculate optimal arrow length based on bow parameters"""
+        """Adaptively calculate arrow length based on bow parameters and user needs"""
         base_length = 60.0  # mm
-        
-        # Thicker bows benefit from longer arrows
-        thickness_factor = bow_thickness / 5.0
-        
-        # More curved bows work better with shorter arrows
-        curvature_factor = 1.0 - (bow_curvature - 0.3) * 0.5
-        
+
+        # More stiffness and curvature = faster release, so shorter arrow improves stability
+        stiffness_factor = 1.0 - (self.limb_stiffness - 0.6) * 0.3  # slightly shorter for stiffer bows
+        curvature_factor = 1.0 - (bow_curvature - 0.3) * 0.4        # shorten with high curvature
+        thickness_factor = 1.0 + (bow_thickness - 5.0) * 0.05       # thicker bow = slightly longer arrow
+
         # User profile adjustment
-        if self.current_user == 'Child':
-            profile_factor = 0.9
-        elif self.current_user == 'Professional':
-            profile_factor = 1.1
-        else:
-            profile_factor = 1.0
+        profile_factor = {
+            'Child': 0.9,
+            'Adult': 1.0,
+            'Professional': 1.1
+        }.get(self.current_user, 1.0)
+
+        length = base_length * stiffness_factor * curvature_factor * thickness_factor * profile_factor
+        return max(45.0, min(length, 80.0))  # clamp between 45mm and 80mm
+
+    # def calculate_optimal_arrow_length(self, bow_thickness, bow_curvature):
+    #     """Calculate optimal arrow length based on bow parameters"""
+    #     base_length = 60.0  # mm
+        
+    #     # Thicker bows benefit from longer arrows
+    #     thickness_factor = bow_thickness / 5.0
+        
+    #     # More curved bows work better with shorter arrows
+    #     curvature_factor = 1.0 - (bow_curvature - 0.3) * 0.5
+        
+    #     # User profile adjustment
+    #     if self.current_user == 'Child':
+    #         profile_factor = 0.9
+    #     elif self.current_user == 'Professional':
+    #         profile_factor = 1.1
+    #     else:
+    #         profile_factor = 1.0
             
-        return base_length * thickness_factor * curvature_factor * profile_factor
+    #     return base_length * thickness_factor * curvature_factor * profile_factor
 
     # TODO: User can not directly change arrow so this need to rewrite to fit the size of the bow!
     def calculate_optimal_arrow_weight(self, limb_stiffness):
-        """Calculate optimal arrow weight based on bow parameters"""
+        """Compute arrow weight based on bow's stiffness and user profile"""
         base_weight = 2.0  # g
+
+        stiffness_factor = 1.0 + (limb_stiffness - 0.6) * 0.6  # stiffer bow = heavier arrow
+        length_factor = self.arrow_length / 60.0               # scale weight with arrow length
+
+        profile_factor = {
+            'Child': 0.85,
+            'Adult': 1.0,
+            'Professional': 1.2
+        }.get(self.current_user, 1.0)
+
+        weight = base_weight * stiffness_factor * length_factor * profile_factor
+        return round(weight, 2)
+
+    # def calculate_optimal_arrow_weight(self, limb_stiffness):
+    #     """Calculate optimal arrow weight based on bow parameters"""
+    #     base_weight = 2.0  # g
         
-        # Stiffer bows can launch heavier arrows
-        stiffness_factor = limb_stiffness / 0.6
+    #     # Stiffer bows can launch heavier arrows
+    #     stiffness_factor = limb_stiffness / 0.6
         
-        # User profile adjustment
-        if self.current_user == 'Child':
-            profile_factor = 0.8
-        elif self.current_user == 'Professional':
-            profile_factor = 1.2
-        else:
-            profile_factor = 1.0
+    #     # User profile adjustment
+    #     if self.current_user == 'Child':
+    #         profile_factor = 0.8
+    #     elif self.current_user == 'Professional':
+    #         profile_factor = 1.2
+    #     else:
+    #         profile_factor = 1.0
             
-        return base_weight * stiffness_factor * profile_factor
+    #     return base_weight * stiffness_factor * profile_factor
 
     # TODO: User can not directly change arrow so this need to rewrite to fit the size of the bow!
     def calculate_optimal_tip_diameter(self, limb_stiffness):
-        """Calculate optimal tip diameter based on stiffness and user profile"""
+        """Determine tip diameter based on stiffness and safety"""
         base_diameter = 8.0  # mm
+
+        # Heavier or faster bows = smaller, sharper tips (unless user is child)
+        stiffness_factor = 1.0 - (limb_stiffness - 0.6) * 0.4
+        curvature_penalty = 1.0 if self.bow_curvature < 0.33 else 0.95
+
+        profile_factor = {
+            'Child': 1.3,
+            'Adult': 1.0,
+            'Professional': 0.8
+        }.get(self.current_user, 1.0)
+
+        diameter = base_diameter * stiffness_factor * curvature_penalty * profile_factor
+        return round(min(max(diameter, 4.0), 12.0), 2)  # clamp to safe bounds
+
+    # def calculate_optimal_tip_diameter(self, limb_stiffness):
+    #     """Calculate optimal tip diameter based on stiffness and user profile"""
+    #     base_diameter = 8.0  # mm
         
-        # Stiffer bows work well with smaller tips (better aerodynamics)
-        stiffness_factor = 1.0 - (limb_stiffness - 0.6) * 0.3
+    #     # Stiffer bows work well with smaller tips (better aerodynamics)
+    #     stiffness_factor = 1.0 - (limb_stiffness - 0.6) * 0.3
         
-        # User profile safety factors
-        if self.current_user == 'Child':
-            safety_factor = 1.3  # Much larger tips for children
-        elif self.current_user == 'Professional':
-            safety_factor = 0.8  # Smaller tips for professionals
-        else:
-            safety_factor = 1.0
+    #     # User profile safety factors
+    #     if self.current_user == 'Child':
+    #         safety_factor = 1.3  # Much larger tips for children
+    #     elif self.current_user == 'Professional':
+    #         safety_factor = 0.8  # Smaller tips for professionals
+    #     else:
+    #         safety_factor = 1.0
             
-        return base_diameter * stiffness_factor * safety_factor
+    #     return base_diameter * stiffness_factor * safety_factor
 
     # TODO: Need more reasonable calculation of performance scores
     def simulate_performance(self):

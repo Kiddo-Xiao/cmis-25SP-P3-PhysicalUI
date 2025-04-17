@@ -3,8 +3,8 @@
 ## TODO
 
 - [X] Comfort Score
-- [ ] 3D Printing Criteria Optim
-- [ ] Arrow Opt
+- [X] 3D Printing Criteria Optim
+- [X] Arrow Opt
 
 ## Bow Comfort Score: Mathematical Heuristics & Optimization
 
@@ -50,4 +50,22 @@ Each component score ranges from **0** to **1**, computed using rule-based ergon
 | **Supports**     | - **No** by default <br> - Use **Yes** if `bow_curvature > 0.36` or arrow tip is heavily scaled                                                              |
 | **Instructions** | - If using **TPU** → *Print bow limbs with TPU for flexibility and safety* <br> - If `limb_stiffness > 0.7` → *Print at 45° for strength* <br> - Else → *Standard orientation* |
 
+## Arrow Heuristics
 
+Arrow parameters are dynamically optimized to align with bow characteristics and user type for safety, performance, and ergonomics.
+
+### Heuristic Table
+
+| Parameter       | Formula                                                                                                                   | Description                                       |
+|----------------|---------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------|
+| **Arrow Length** | `60 × (1 - (Stiffness - 0.6) × 0.3) × (1 - (Curvature - 0.3) × 0.4) × (1 + (Thickness - 5.0) × 0.05) × Profile Factor`     | Longer for thick bows, shorter for high curvature/stiffness |
+| **Arrow Weight** | `2.0 × (1 + (Stiffness - 0.6) × 0.6) × (Arrow Length / 60.0) × Profile Factor`                                             | Heavier for longer and stiffer bows              |
+| **Tip Diameter** | `8.0 × (1 - (Stiffness - 0.6) × 0.4) × Curvature Factor × Profile Factor`                                                  | Smaller for stiff or curved bows (except child)  |
+
+### Profile Factors
+
+| User Type     | Profile Factor (Length & Weight) | Profile Factor (Tip) | Curvature Factor (Tip)         |
+|---------------|--------------------------|--------------------|-------------------------------|
+| Child         | 0.9                      | 1.3                | 1.0 (no reduction)            |
+| Adult         | 1.0                      | 1.0                | 1.0 if Curvature < 0.33 else 0.95 |
+| Professional  | 1.1                      | 0.8                | 1.0 if Curvature < 0.33 else 0.95 |
