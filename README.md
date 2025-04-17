@@ -76,11 +76,6 @@ The optimizer includes predefined user profiles to quickly tailor the bow design
 - Profile selection automatically updates all bow and arrow parameters
 - User profiles also include safety thresholds (`max_draw_force`, `max_launch_speed`) and weighting factors (`safety_factor`, `speed_factor`)
 
-**Potential Improvements:**
-- Add custom profile creation and saving
-- Implement age-based parameter adjustments within profiles
-- Create hybrid profiles for specialized use cases
-
 ### 2. Parameter Customization
 
 The optimizer allows fine-tuning of critical bow parameters to adjust performance characteristics:
@@ -88,7 +83,7 @@ The optimizer allows fine-tuning of critical bow parameters to adjust performanc
 **Key Parameters:**
 - **Bow Thickness** (4.0-7.0mm): Controls bow strength and energy storage
 - **Bow Curvature** (0.2-0.4): Affects energy storage and draw smoothness
-- **Limb Stiffness** (0.3-0.9): Determines draw force and energy transfer efficiency
+- **Limb Stiffness** (0.3-0.9): Determines draw force and energy transfer efficiency (mainly apply to 3D print material)
 - **Grip Width** (20-35mm): Affects user comfort and handling
 
 **Implementation Details:**
@@ -102,10 +97,6 @@ The optimizer allows fine-tuning of critical bow parameters to adjust performanc
 - Increasing curvature → more stored energy but higher draw force
 - Increasing stiffness → higher accuracy but requires more strength
 - Increasing grip width → better comfort but potentially lower accuracy
-
-**Potential Improvements:**
-- Add parameter interdependence modeling (changing one affects optimal values of others)
-- Implement parameter sensitivity analysis to show impact on performance
 
 ### 3. Palm Size Adaptation
 
@@ -121,11 +112,6 @@ The optimizer customizes the grip for different hand sizes to ensure user comfor
 - For children: Wider grips relative to hand size (grip_size_factor = 1.2)
 - For professionals: Slightly narrower grips for precise control (grip_size_factor = 0.9)
 - Thickness adjustments ensure comfortable grip depth for different hand sizes
-
-**Potential Improvements:**
-- Implement more sophisticated hand ergonomics based on anthropometric data
-- Add finger groove customization based on hand dimensions
-- Consider left vs. right-handed grip adaptations
 
 ### 4. Optimization Algorithm
 
@@ -148,14 +134,16 @@ The system uses advanced optimization techniques to find the best parameter comb
 1. Define initial parameters from current settings
 2. Set bounds based on user profile
 3. Run L-BFGS-B optimization
-4. Apply small random variations to results
-5. Calculate optimal arrow parameters for the optimized bow
-6. Update 3D model geometry
+```python
+   # Run optimization
+   # Including: bow_thickness, bow_curvature, limb_stiffness for different user type and bow_width should be fixed
+        result = minimize(obj_func, initial_guess, method='L-BFGS-B', bounds=bounds)
+```
 
-**Potential Improvements:**
-- Implement multi-objective optimization algorithms
-- Add stochastic optimization to explore broader solution spaces
-- Incorporate real-world test data to refine optimization targets
+5. Apply small random variations to results
+6. Calculate optimal arrow parameters for the optimized bow
+7. Update 3D model geometry
+
 
 ### 5. Performance Simulation
 
@@ -181,11 +169,6 @@ The optimizer simulates real-world performance to evaluate design quality:
 - Professionals: Accuracy (50%) and distance (20%) prioritized
 - Adults: Balanced weighting across all metrics
 
-**Potential Improvements:**
-- Implement more accurate physical models for flight trajectory
-- Add wind and environmental factor simulation
-- Incorporate material properties in performance calculations
-
 ### 6. 3D Visualization
 
 The system provides real-time visual feedback of design changes:
@@ -208,11 +191,6 @@ The system provides real-time visual feedback of design changes:
 - Reference grid for size comparison
 - Camera position adjustment for optimal viewing
 
-**Potential Improvements:**
-- Add material textures for more realistic visualization
-- Implement animation of bow draw and release
-- Add stress visualization to show potential failure points
-
 ### 7. STL Export
 
 The optimizer can export the final design for 3D printing:
@@ -223,24 +201,12 @@ The optimizer can export the final design for 3D printing:
 - Combines multiple components into a single printable mesh
 - File dialog allows user to specify save location
 
-**Export Process:**
-1. Combine all mesh components into a single model
-2. Export combined mesh to STL format
-3. Return absolute path to exported file
-4. Confirm export success to user
-
 **3D Printing Considerations:**
 - Parameters are kept within printable ranges
 - Component assembly is designed for single-piece printing
 - Future implementation will include print settings recommendations
 
-**Potential Improvements:**
-- Add export options for different file formats (OBJ, 3MF)
-- Implement automatic support structure generation
-- Add material-specific print setting recommendations
-- Implement slicing preview functionality
-
-## Next Step-1: Physics Estimation Methods
+## Next Steps: Physics Estimation & Optimization Methods
 
 ### `estimate_launch_speed(bow_thickness, bow_curvature, limb_stiffness)`
 
@@ -258,12 +224,6 @@ This method calculates the estimated arrow launch speed based on the physical pr
 - Doesn't consider arrow mass in the speed calculation
 - Simple multiplicative model rather than proper physics simulation
 
-**TODO Improvements:**
-- Implement a more physically accurate model that accounts for stored potential energy
-- Consider the arrow mass and its effect on final velocity
-- Account for energy transfer efficiency between bow and arrow
-- Add damping factors to simulate real-world energy losses
-
 ### `estimate_draw_force(bow_thickness, bow_curvature, limb_stiffness)`
 
 This method estimates the force required to fully draw the bow based on its physical parameters.
@@ -278,14 +238,6 @@ This method estimates the force required to fully draw the bow based on its phys
 - Doesn't model the non-linear force profile of real bows
 - Doesn't account for draw length variations
 - Simple multiplicative model rather than using beam physics
-
-**TODO Improvements:**
-- Model the force curve throughout the draw cycle
-- Apply proper beam mechanics for more accurate force calculations
-- Consider the relationship between draw length and force
-- Account for material properties in the force calculation
-
-## Next Step-2: Optimization Methods
 
 ### `objective(x, user_profile)`
 
@@ -325,7 +277,7 @@ This method runs the optimization algorithm to find the best parameters for the 
 - Ensures optimized parameters stay within defined bounds
 - Automatically calculates matching arrow parameters for the optimized bow
 
-**Suggested Improvements**
+### Specific:
 
 1. **For `estimate_launch_speed()`**:
    - Implement Hooke's Law for energy storage calculation
@@ -346,4 +298,7 @@ This method runs the optimization algorithm to find the best parameters for the 
    - Experiment with different optimization algorithms (e.g., genetic algorithms)
    - Implement multi-objective optimization to balance competing goals
    - Add sensitivity analysis to understand parameter importance
-
+   - Adjust optimal arrow parameters (size) to fit the optimized bow
+   - Incorporate real-world test data to refine optimization targets
+5. **STL Export**:
+   - Add material-specific print setting recommendations
