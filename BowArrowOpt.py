@@ -21,8 +21,7 @@ class BowArrowOptimizer:
         self.arrow_length = 60.0       # mm
         self.arrow_weight = 2.0        # g
         self.tip_diameter = 8.0        # mm
-        self.tip_length = 5.0          # mm
-        
+        self.tip_length = 5.0          # mm        
         
         # User profiles with tailored parameters
         self.user_profiles = {
@@ -79,6 +78,7 @@ class BowArrowOptimizer:
     def set_user_profile(self, profile_name, palm_size=None, preferred_speed=None):
         """Set user profile and adjust parameters accordingly"""
         if profile_name in self.user_profiles:
+            self.current_user = profile_name # moved to top as logs are not updated correctly
             profile = self.user_profiles[profile_name]
             self.refresh_parameters(
                 profile['bow_thickness'], 
@@ -90,7 +90,6 @@ class BowArrowOptimizer:
                 profile['tip_diameter']
             )
             self.tip_length = profile['tip_length']
-            self.current_user = profile_name
             
             if palm_size:
                 self.palm_size = palm_size
@@ -124,6 +123,73 @@ class BowArrowOptimizer:
             self.bow_thickness *= 0.9
             
         print(f"Adjusted for palm size {self.palm_size:.1f}mm: Grip width = {self.grip_width:.1f}mm")
+        
+    # To calculate comfort score
+    def compute_comfort_score(self):
+        """Compute comfort score based on ergonomic heuristics and log debug data"""
+        os.makedirs("logs", exist_ok=True)
+        log_path = "logs/comfort_score_debug.txt"
+
+        # Heuristic weights
+        grip_score = 1.0
+        thickness_score = 1.0
+        stiffness_score = 1.0
+        curvature_score = 1.0
+
+        # 1. Grip Heuristics (based on palm size)
+        palm_factor = self.palm_size / (90.0 if self.current_user != 'Child' else 70.0)
+        grip_ratio = self.grip_width / (self.palm_size * 0.27)
+        if grip_ratio > 1.2:
+            grip_score = 0.7 if self.current_user == 'Child' else 0.9
+        elif grip_ratio < 0.8:
+            grip_score = 0.6
+        else:
+            grip_score = 1.0
+
+        # 2. Thickness Heuristics (penalize excess thickness for children or small palms)
+        if self.bow_thickness > 6.0 and self.palm_size < 75.0:
+            thickness_score = 0.6
+        elif self.bow_thickness < 4.5 and self.palm_size > 100.0:
+            thickness_score = 0.8
+        else:
+            thickness_score = 1.0
+
+        # 3. Stiffness Heuristics (softer is easier, good for small users)
+        if self.limb_stiffness > 0.7 and self.current_user == 'Child':
+            stiffness_score = 0.5
+        elif self.limb_stiffness < 0.5 and self.current_user == 'Professional':
+            stiffness_score = 0.7
+        else:
+            stiffness_score = 1.0
+
+        # 4. Curvature Heuristics (too high or low can be uncomfortable)
+        if 0.25 <= self.bow_curvature <= 0.35:
+            curvature_score = 1.0
+        else:
+            curvature_score = 0.8
+
+        # Final comfort score (weighted)
+        comfort_score = (
+            grip_score * 0.4 +
+            thickness_score * 0.3 +
+            stiffness_score * 0.2 +
+            curvature_score * 0.1
+        ) * 100
+
+        comfort_score = round(min(max(comfort_score, 0), 100), 1)
+
+        with open(log_path, "w", encoding="utf-8") as log_file:
+            log_file.write("=== Comfort Score Log ===\n")
+            log_file.write(f"User Type: {self.current_user}\n")
+            log_file.write(f"Palm Size: {self.palm_size} mm\n")
+            log_file.write(f"Grip Width: {self.grip_width:.2f} mm → Grip Score: {grip_score:.2f}\n")
+            log_file.write(f"Bow Thickness: {self.bow_thickness:.2f} mm → Thickness Score: {thickness_score:.2f}\n")
+            log_file.write(f"Limb Stiffness: {self.limb_stiffness:.2f} → Stiffness Score: {stiffness_score:.2f}\n")
+            log_file.write(f"Bow Curvature: {self.bow_curvature:.2f} → Curvature Score: {curvature_score:.2f}\n")
+            log_file.write(f"Final Comfort Score: {comfort_score:.1f}/100\n")
+
+        return comfort_score
+
 
     def adjust_for_speed(self):
         """Adjust parameters based on preferred shooting speed"""
@@ -418,60 +484,112 @@ class BowArrowOptimizer:
 
     # TODO: User can not directly change arrow so this need to rewrite to fit the size of the bow!
     def calculate_optimal_arrow_length(self, bow_thickness, bow_curvature):
-        """Calculate optimal arrow length based on bow parameters"""
+        """Adaptively calculate arrow length based on bow parameters and user needs"""
         base_length = 60.0  # mm
-        
-        # Thicker bows benefit from longer arrows
-        thickness_factor = bow_thickness / 5.0
-        
-        # More curved bows work better with shorter arrows
-        curvature_factor = 1.0 - (bow_curvature - 0.3) * 0.5
-        
+
+        # More stiffness and curvature = faster release, so shorter arrow improves stability
+        stiffness_factor = 1.0 - (self.limb_stiffness - 0.6) * 0.3  # slightly shorter for stiffer bows
+        curvature_factor = 1.0 - (bow_curvature - 0.3) * 0.4        # shorten with high curvature
+        thickness_factor = 1.0 + (bow_thickness - 5.0) * 0.05       # thicker bow = slightly longer arrow
+
         # User profile adjustment
-        if self.current_user == 'Child':
-            profile_factor = 0.9
-        elif self.current_user == 'Professional':
-            profile_factor = 1.1
-        else:
-            profile_factor = 1.0
+        profile_factor = {
+            'Child': 0.9,
+            'Adult': 1.0,
+            'Professional': 1.1
+        }.get(self.current_user, 1.0)
+
+        length = base_length * stiffness_factor * curvature_factor * thickness_factor * profile_factor
+        return max(45.0, min(length, 80.0))  # clamp between 45mm and 80mm
+
+    # def calculate_optimal_arrow_length(self, bow_thickness, bow_curvature):
+    #     """Calculate optimal arrow length based on bow parameters"""
+    #     base_length = 60.0  # mm
+        
+    #     # Thicker bows benefit from longer arrows
+    #     thickness_factor = bow_thickness / 5.0
+        
+    #     # More curved bows work better with shorter arrows
+    #     curvature_factor = 1.0 - (bow_curvature - 0.3) * 0.5
+        
+    #     # User profile adjustment
+    #     if self.current_user == 'Child':
+    #         profile_factor = 0.9
+    #     elif self.current_user == 'Professional':
+    #         profile_factor = 1.1
+    #     else:
+    #         profile_factor = 1.0
             
-        return base_length * thickness_factor * curvature_factor * profile_factor
+    #     return base_length * thickness_factor * curvature_factor * profile_factor
 
     # TODO: User can not directly change arrow so this need to rewrite to fit the size of the bow!
     def calculate_optimal_arrow_weight(self, limb_stiffness):
-        """Calculate optimal arrow weight based on bow parameters"""
+        """Compute arrow weight based on bow's stiffness and user profile"""
         base_weight = 2.0  # g
+
+        stiffness_factor = 1.0 + (limb_stiffness - 0.6) * 0.6  # stiffer bow = heavier arrow
+        length_factor = self.arrow_length / 60.0               # scale weight with arrow length
+
+        profile_factor = {
+            'Child': 0.85,
+            'Adult': 1.0,
+            'Professional': 1.2
+        }.get(self.current_user, 1.0)
+
+        weight = base_weight * stiffness_factor * length_factor * profile_factor
+        return round(weight, 2)
+
+    # def calculate_optimal_arrow_weight(self, limb_stiffness):
+    #     """Calculate optimal arrow weight based on bow parameters"""
+    #     base_weight = 2.0  # g
         
-        # Stiffer bows can launch heavier arrows
-        stiffness_factor = limb_stiffness / 0.6
+    #     # Stiffer bows can launch heavier arrows
+    #     stiffness_factor = limb_stiffness / 0.6
         
-        # User profile adjustment
-        if self.current_user == 'Child':
-            profile_factor = 0.8
-        elif self.current_user == 'Professional':
-            profile_factor = 1.2
-        else:
-            profile_factor = 1.0
+    #     # User profile adjustment
+    #     if self.current_user == 'Child':
+    #         profile_factor = 0.8
+    #     elif self.current_user == 'Professional':
+    #         profile_factor = 1.2
+    #     else:
+    #         profile_factor = 1.0
             
-        return base_weight * stiffness_factor * profile_factor
+    #     return base_weight * stiffness_factor * profile_factor
 
     # TODO: User can not directly change arrow so this need to rewrite to fit the size of the bow!
     def calculate_optimal_tip_diameter(self, limb_stiffness):
-        """Calculate optimal tip diameter based on stiffness and user profile"""
+        """Determine tip diameter based on stiffness and safety"""
         base_diameter = 8.0  # mm
+
+        # Heavier or faster bows = smaller, sharper tips (unless user is child)
+        stiffness_factor = 1.0 - (limb_stiffness - 0.6) * 0.4
+        curvature_penalty = 1.0 if self.bow_curvature < 0.33 else 0.95
+
+        profile_factor = {
+            'Child': 1.3,
+            'Adult': 1.0,
+            'Professional': 0.8
+        }.get(self.current_user, 1.0)
+
+        diameter = base_diameter * stiffness_factor * curvature_penalty * profile_factor
+        return round(min(max(diameter, 4.0), 12.0), 2)  # clamp to safe bounds
+
+    # def calculate_optimal_tip_diameter(self, limb_stiffness):
+    #     """Calculate optimal tip diameter based on stiffness and user profile"""
+    #     base_diameter = 8.0  # mm
         
-        # Stiffer bows work well with smaller tips (better aerodynamics)
-        stiffness_factor = 1.0 - (limb_stiffness - 0.6) * 0.3
+    #     # Stiffer bows work well with smaller tips (better aerodynamics)
+    #     stiffness_factor = 1.0 - (limb_stiffness - 0.6) * 0.3
         
-        # User profile safety factors
-        if self.current_user == 'Child':
-            safety_factor = 1.3  # Much larger tips for children
-        elif self.current_user == 'Professional':
-            safety_factor = 0.8  # Smaller tips for professionals
-        else:
-            safety_factor = 1.0
+    #     # User profile safety factors
+    #     if self.current_user == 'Child':
+    #         safety_factor = 1.3  # Much larger tips for children
+    #     elif self.current_user == 'Professional':
+    #         safety_factor = 0.8  # Smaller tips for professionals
+    #     else:
+    #         safety_factor = 1.0
             
-        return base_diameter * stiffness_factor * safety_factor
+    #     return base_diameter * stiffness_factor * safety_factor
 
     # TODO: Need more reasonable calculation of performance scores
     def simulate_performance(self):
@@ -504,8 +622,13 @@ class BowArrowOptimizer:
         accuracy_score = 70 + (self.limb_stiffness * 20)
         
         # TODO: Comfort score (need to add some user-friendly components on grip)
-        comfort_score = 0
+        # comfort_score = 0
+        # Calculate comfort score from ergonomics
+        comfort_score = self.compute_comfort_score()
         
+        # 3D Print Settings
+        self.get_print_settings()  # Log the dynamic 3D print settings
+
         # Safety score
         if self.current_user == 'Child':
             safety_threshold = 2.5  # m/s
@@ -567,29 +690,94 @@ class BowArrowOptimizer:
         return os.path.abspath(filename)
 
     # TODO: Optimization for 3D printing parameters   
+    def get_print_settings(self):
+        """Dynamically recommend 3D print settings based on bow and arrow parameters and log them"""
+
+        # Ensure logs directory exists
+        os.makedirs("logs", exist_ok=True)
+        log_path = "logs/print_settings_debug.txt"
+
+        # Material choice based on stiffness and thickness
+        if self.limb_stiffness > 0.7:
+            material = "Nylon or PETG"
+        elif self.bow_thickness < 5.0:
+            material = "PETG"
+        else:
+            material = "PLA or TPU" if self.current_user == "Child" else "PLA"
+
+        # Layer height
+        if self.bow_curvature > 0.33 or self.limb_stiffness > 0.7:
+            layer_height = "0.12mm"
+        elif self.bow_thickness > 5.5:
+            layer_height = "0.16mm"
+        else:
+            layer_height = "0.2mm"
+
+        # Infill
+        if self.limb_stiffness > 0.7 or self.arrow_weight > 2.2:
+            infill = "30%"
+        elif self.bow_thickness > 5.5:
+            infill = "25%"
+        else:
+            infill = "20%"
+
+        # Supports
+        supports = "Yes" if self.bow_curvature > 0.36 else "No"
+
+        # Instructions
+        if "TPU" in material:
+            instructions = "Print bow limbs with TPU for extra flexibility and safety"
+        elif self.limb_stiffness > 0.7:
+            instructions = "Print bow at 45° angle for better layer adhesion and strength"
+        else:
+            instructions = "Standard printing orientation is recommended"
+
+        # Write to log file
+        with open(log_path, "w", encoding="utf-8") as f:
+            f.write("=== 3D Print Settings Log ===\n")
+            f.write(f"User Type: {self.current_user}\n")
+            f.write(f"Limb Stiffness: {self.limb_stiffness:.2f}\n")
+            f.write(f"Bow Thickness: {self.bow_thickness:.2f} mm\n")
+            f.write(f"Bow Curvature: {self.bow_curvature:.2f}\n")
+            f.write(f"Arrow Weight: {self.arrow_weight:.2f} g\n")
+            f.write(f"Material: {material}\n")
+            f.write(f"Layer Height: {layer_height}\n")
+            f.write(f"Infill: {infill}\n")
+            f.write(f"Supports: {supports}\n")
+            f.write(f"Instructions: {instructions}\n")
+
+        return {
+            "material": material,
+            "layer_height": layer_height,
+            "infill": infill,
+            "supports": supports,
+            "special_instructions": instructions
+        }
+
+
     # def get_print_settings(self):
-        """Get recommended print settings based on current parameters"""
-        if self.current_user == 'Child':
-            return {
-                'material': 'PLA or TPU',
-                'layer_height': '0.2mm',
-                'infill': '20%',
-                'supports': 'No',
-                'special_instructions': 'Print bow limbs with TPU for extra safety and flexibility'
-            }
-        elif self.current_user == 'Professional':
-            return {
-                'material': 'PETG or Nylon',
-                'layer_height': '0.12mm',
-                'infill': '30%',
-                'supports': 'No',
-                'special_instructions': 'Print bow at 45° angle for better layer adhesion and strength'
-            }
-        else:  # Adult
-            return {
-                'material': 'PLA or PETG',
-                'layer_height': '0.16mm',
-                'infill': '25%',
-                'supports': 'No',
-                'special_instructions': 'Standard printing orientation is recommended'
-            }
+    #     """Get recommended print settings based on current parameters"""
+    #     if self.current_user == 'Child':
+    #         return {
+    #             'material': 'PLA or TPU',
+    #             'layer_height': '0.2mm',
+    #             'infill': '20%',
+    #             'supports': 'No',
+    #             'special_instructions': 'Print bow limbs with TPU for extra safety and flexibility'
+    #         }
+    #     elif self.current_user == 'Professional':
+    #         return {
+    #             'material': 'PETG or Nylon',
+    #             'layer_height': '0.12mm',
+    #             'infill': '30%',
+    #             'supports': 'No',
+    #             'special_instructions': 'Print bow at 45° angle for better layer adhesion and strength'
+    #         }
+    #     else:  # Adult
+    #         return {
+    #             'material': 'PLA or PETG',
+    #             'layer_height': '0.16mm',
+    #             'infill': '25%',
+    #             'supports': 'No',
+    #             'special_instructions': 'Standard printing orientation is recommended'
+    #         }
