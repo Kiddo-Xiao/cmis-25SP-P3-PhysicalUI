@@ -34,9 +34,9 @@ class BowArrowUI(QMainWindow):
     # UPDATE: the allowed range of performance metrics based on physical constraints
     def update_performance_range(self):
         ''' ATTENTION: Calculate estimated min/max values for launch speed and draw force Sliders, but these depends 
-        # on the physical calculations in the optimizer, for example: when we change our mathematical 
-        # methods to calculate the launch speed(or draw force), the min/max values might not be gotten
-        # if here we just naively use the min/max values of the bow's physical parameters '''
+        on the physical calculations in the optimizer, for example: when we change our mathematical 
+        methods to calculate the launch speed(or draw force), the min/max values might not be gotten
+        if here we just naively use the min/max values of the bow's physical parameters '''
         min_speed = self.optimizer.estimate_launch_speed(4.0, 0.2, 0.3, 35)  # Minimum parameters
         max_speed = self.optimizer.estimate_launch_speed(7.0, 0.4, 0.9, 20)  # Maximum parameters
         
@@ -169,12 +169,12 @@ class BowArrowUI(QMainWindow):
         self.thickness_spin.setSuffix(" mm")
         params_form.addRow("Bow Thickness:", self.thickness_spin)
         
-        # Bow curvature
-        self.curvature_spin = QDoubleSpinBox()
-        self.curvature_spin.setRange(0.2, 0.4)
-        self.curvature_spin.setValue(0.3)
-        self.curvature_spin.setSingleStep(0.01)
-        params_form.addRow("Bow Curvature:", self.curvature_spin)
+        # UPDATE: hide Bow curvature
+        # self.curvature_spin = QDoubleSpinBox()
+        # self.curvature_spin.setRange(0.2, 0.4)
+        # self.curvature_spin.setValue(0.3)
+        # self.curvature_spin.setSingleStep(0.01)
+        # params_form.addRow("Bow Curvature:", self.curvature_spin)
       
         # Limb stiffness
         self.stiffness_spin = QDoubleSpinBox()
@@ -258,8 +258,8 @@ class BowArrowUI(QMainWindow):
         targets_form.addRow("", self.draw_force_target_label)
 
         # Checkbox to lock specific targets
-        self.lock_speed_checkbox = QCheckBox("Lock Launch Speed")
-        self.lock_force_checkbox = QCheckBox("Lock Draw Force") 
+        self.lock_speed_checkbox = QCheckBox("Prioritize Launch Speed")
+        self.lock_force_checkbox = QCheckBox("Prioritize Draw Force") 
         targets_form.addRow(self.lock_speed_checkbox)
         targets_form.addRow(self.lock_force_checkbox)
 
