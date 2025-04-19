@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                            QHBoxLayout, QLabel, QComboBox, QSlider, QPushButton, 
                            QSpinBox, QDoubleSpinBox, QGroupBox, QTabWidget,
-                           QFormLayout, QFileDialog, QMessageBox, QCheckBox)
+                           QFormLayout, QFileDialog, QMessageBox)
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QPixmap, QImage
 import pyqtgraph.opengl as gl
@@ -24,77 +24,10 @@ class BowArrowUI(QMainWindow):
         
         # Setup UI components
         self.setup_ui()
-
-        # Set performance range based on physical constraints
-        self.update_performance_range()
-
+        
         # Initialize viewer with model
         self.update_model_view()
         
-    # UPDATE: the allowed range of performance metrics based on physical constraints
-    def update_performance_range(self):
-        ''' ATTENTION: Calculate estimated min/max values for launch speed and draw force Sliders, but these depends 
-        # on the physical calculations in the optimizer, for example: when we change our mathematical 
-        # methods to calculate the launch speed(or draw force), the min/max values might not be gotten
-        # if here we just naively use the min/max values of the bow's physical parameters '''
-        min_speed = self.optimizer.estimate_launch_speed(4.0, 0.2, 0.3, 35)  # Minimum parameters
-        max_speed = self.optimizer.estimate_launch_speed(7.0, 0.4, 0.9, 20)  # Maximum parameters
-        
-        min_force = self.optimizer.estimate_draw_force(4.0, 0.2, 0.3, 20)    # Minimum parameters
-        max_force = self.optimizer.estimate_draw_force(7.0, 0.4, 0.9, 35)    # Maximum parameters
-        
-        # Add 10% margin on each side
-        min_speed = min_speed * 0.9
-        max_speed = max_speed * 1.1
-        
-        min_force = min_force * 0.9
-        max_force = max_force * 1.1
-        
-        # Update slider ranges
-        self.launch_speed_slider.setRange(int(min_speed * 10), int(max_speed * 10))
-        self.draw_force_slider.setRange(int(min_force * 10), int(max_force * 10))
-        
-        # Log the available ranges
-        print(f"Performance ranges: Speed {min_speed:.1f}-{max_speed:.1f} m/s, Force {min_force:.1f}-{max_force:.1f} N")
-
-    def update_launch_speed_label(self):
-        """Update the label showing target launch speed value"""
-        value = self.launch_speed_slider.value() / 10.0  # Convert from scaled int
-        self.launch_speed_target_label.setText(f"{value:.1f} m/s")
-        
-    def update_draw_force_label(self):
-        """Update the label showing target draw force value"""
-        value = self.draw_force_slider.value() / 10.0  # Convert from scaled int
-        self.draw_force_target_label.setText(f"{value:.1f} N")
-        
-    def optimize_performance(self):
-        """Optimize physical parameters to achieve specified performance targets"""
-        try:
-            # Get targets from sliders
-            target_speed = self.launch_speed_slider.value() / 10.0
-            target_force = self.draw_force_slider.value() / 10.0
-            
-            # Get lock states
-            lock_speed = self.lock_speed_checkbox.isChecked()
-            lock_force = self.lock_force_checkbox.isChecked()
-            
-            # Call optimizer with performance targets
-            self.optimizer.optimize_for_performance(
-                target_speed, target_force, 
-                lock_speed, lock_force
-            )
-            
-            # Update UI to show new parameters
-            self.update_parameter_displays()
-            self.update_model_view()
-            self.simulate_performance()
-            
-            QMessageBox.information(self, "Performance Optimization Complete", 
-                            "Model has been optimized for your performance targets.")
-        except Exception as e:
-            QMessageBox.critical(self, "Optimization Error", 
-                        f"Failed to optimize for performance: {str(e)}")
-    
     def setup_ui(self):
         """Set up the user interface"""
         # Create central widget and main layout
@@ -198,15 +131,10 @@ class BowArrowUI(QMainWindow):
         apply_params_btn.clicked.connect(self.apply_parameters)
         config_layout.addWidget(apply_params_btn)
         
-        # UPDATE: more reasonable UI layout
-        # Add simulate button
-        simulate_btn = QPushButton("Simulate Performance")
-        simulate_btn.clicked.connect(self.simulate_performance)
-        config_layout.addWidget(simulate_btn)
-        # # Optimize button
-        # optimize_btn = QPushButton("Optimize Design")
-        # optimize_btn.clicked.connect(self.optimize_design)
-        # config_layout.addWidget(optimize_btn)
+        # Optimize button
+        optimize_btn = QPushButton("Optimize Design")
+        optimize_btn.clicked.connect(self.optimize_design)
+        config_layout.addWidget(optimize_btn)
 
        # Second tab: Setup results tab
         results_layout = QVBoxLayout(results_tab)
@@ -235,45 +163,6 @@ class BowArrowUI(QMainWindow):
         
         results_layout.addWidget(performance_group)
         
-        # UPDATE: Performance targets including launch speed and draw force
-        performance_targets_group = QGroupBox("Performance Targets")
-        targets_form = QFormLayout(performance_targets_group)
-
-        # Launch speed slider and display
-        self.launch_speed_slider = QSlider(Qt.Horizontal)
-        self.launch_speed_slider.setRange(10, 50)  # 1.0 to 5.0 m/s (scaled by 10)
-        self.launch_speed_slider.setValue(30)      # Default 3.0 m/s
-        self.launch_speed_target_label = QLabel("3.0 m/s")
-        self.launch_speed_slider.valueChanged.connect(self.update_launch_speed_label)
-        targets_form.addRow("Target Launch Speed:", self.launch_speed_slider)
-        targets_form.addRow("", self.launch_speed_target_label)
-
-        # Draw force slider and display
-        self.draw_force_slider = QSlider(Qt.Horizontal)
-        self.draw_force_slider.setRange(20, 70)    # 2.0 to 7.0 N (scaled by 10)
-        self.draw_force_slider.setValue(40)        # Default 4.0 N
-        self.draw_force_target_label = QLabel("4.0 N")
-        self.draw_force_slider.valueChanged.connect(self.update_draw_force_label)
-        targets_form.addRow("Target Draw Force:", self.draw_force_slider)
-        targets_form.addRow("", self.draw_force_target_label)
-
-        # Checkbox to lock specific targets
-        self.lock_speed_checkbox = QCheckBox("Lock Launch Speed")
-        self.lock_force_checkbox = QCheckBox("Lock Draw Force") 
-        targets_form.addRow(self.lock_speed_checkbox)
-        targets_form.addRow(self.lock_force_checkbox)
-
-        # UPDATE: Add User Reminder 
-        targets_form.addRow(QLabel("Reminder: Because of the mutual constraints you"))
-        targets_form.addRow(QLabel("should ideally fix at most one parameter at a time."))
-
-        # Optimize Performance button
-        optimize_performance_btn = QPushButton("Optimize Performance")
-        optimize_performance_btn.clicked.connect(self.optimize_performance)
-        targets_form.addRow(optimize_performance_btn)
-
-        results_layout.addWidget(performance_targets_group)
-
         # Export buttons
         export_group = QGroupBox("Export")
         export_layout = QVBoxLayout(export_group)
@@ -283,6 +172,11 @@ class BowArrowUI(QMainWindow):
         export_layout.addWidget(export_stl_btn)
         
         results_layout.addWidget(export_group)
+        
+        # Add simulate button
+        simulate_btn = QPushButton("Simulate Performance")
+        simulate_btn.clicked.connect(self.simulate_performance)
+        results_layout.addWidget(simulate_btn)
         
         # Setup 3D view in right panel
         view_label = QLabel("3D Model View")
@@ -351,18 +245,23 @@ class BowArrowUI(QMainWindow):
         QMessageBox.information(self, "Parameters Applied", 
                               "Parameters have been applied to the model.")
     
-    # def optimize_design(self):
-    #     """Run the optimization algorithm"""
-    #     try:
-    #         self.optimizer.optimize_model()
-    #         self.update_parameter_displays()
-    #         self.update_model_view()
-    #         self.simulate_performance()  # Update performance metrics
-    #         QMessageBox.information(self, "Optimization Complete", 
-    #                               "Model has been optimized for the current profile.")
-    #     except Exception as e:
-    #         QMessageBox.critical(self, "Optimization Error", 
-    #                            f"Failed to optimize model: {str(e)}")
+    def optimize_design(self):
+        """Run the optimization algorithm"""
+        try:
+            # self.optimizer.optimize_model()
+            # Fix: Use optimize_for_performance instead of optimize_model
+            target_speed = self.optimizer.user_profiles[self.optimizer.current_user]['max_launch_speed']
+            target_force = self.optimizer.user_profiles[self.optimizer.current_user]['max_draw_force']
+            self.optimizer.optimize_for_performance(target_speed, target_force, lock_speed=True, lock_force=True)
+
+            self.update_parameter_displays()
+            self.update_model_view()
+            self.simulate_performance()  # Update performance metrics
+            QMessageBox.information(self, "Optimization Complete", 
+                                  "Model has been optimized for the current profile.")
+        except Exception as e:
+            QMessageBox.critical(self, "Optimization Error", 
+                               f"Failed to optimize model: {str(e)}")
     
     def update_parameter_displays(self):
         """Update UI elements with current optimizer parameters"""
@@ -384,16 +283,12 @@ class BowArrowUI(QMainWindow):
             self.safety_label.setText(f"{results['safety_score']:.1f}")
             self.overall_label.setText(f"{results['performance_score']:.1f}")
             
-            # Update sliders to match current performance values (added)
-            self.launch_speed_slider.setValue(int(results['launch_speed'] * 10))
-            self.draw_force_slider.setValue(int(results['draw_force'] * 10))
-            
             QMessageBox.information(self, "Simulation Complete", 
-                                f"Overall Performance Score: {results['performance_score']:.1f}/100")
+                                  f"Overall Performance Score: {results['performance_score']:.1f}/100")
         except Exception as e:
             QMessageBox.critical(self, "Simulation Error", 
-                            f"Failed to simulate performance: {str(e)}")
-            
+                               f"Failed to simulate performance: {str(e)}")
+    
     def export_stl(self):
         """Export the current model to STL file"""
         try:
@@ -472,7 +367,8 @@ def main():
     os.makedirs("models", exist_ok=True)
     
     # Check if model file exists
-    model_path = 'models/Bow.stl'
+    # model_path = 'models/Bow.stl'
+    model_path = 'models/Bow_Arrow_Combined.stl'
     # model_path = 'models/Bow_Arrow_Combined.stl'
     if not os.path.exists(model_path):
         print(f"Warning: Model file not found at {model_path}")

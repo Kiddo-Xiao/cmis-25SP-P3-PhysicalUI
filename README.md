@@ -1,7 +1,5 @@
 # CMIS P3-PhysicalUI: Handheld Bow and Arrow
 
-Tutorial By Flora
-
 ## Project Overview
 
 This project consists of a physics-based optimization system for bow toy designs with a graphical user interface. The application allows users to:
@@ -17,7 +15,7 @@ This project consists of a physics-based optimization system for bow toy designs
 - **BowArrowOpt.py** - Core optimization engine and physics calculations
 - **BowArrowUI.py** - PyQt5-based graphical user interface
 
-## For Team Members
+## Overview
 
 ### Getting Started
 
@@ -33,6 +31,7 @@ I've marked several areas in BowArrowOpt.py that could use your expertise:
 1. **Improve launch speed estimation** - The current physics model is simplified
 2. **Enhance draw force calculation** - Needs more accurate physics modeling
 3. **Verify optimization method** - Review and enhance the current approach
+
 4. **Update arrow parameter calculations** - Automatic arrow sizing based on bow parameters
 5. **Improve performance score calculations** - More realistic performance metrics
 6. **Add 3D printing parameter optimization** - Implement the print settings function
