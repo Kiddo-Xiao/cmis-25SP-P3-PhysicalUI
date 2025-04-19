@@ -451,6 +451,7 @@ class BowArrowOptimizer:
             ]
         
         # Create an objective function that captures the profile
+        # Including: bow_thickness, bow_curvature, limb_stiffness for different user type and bow_width should be fixed
         def obj_func(x):
             return self.objective(x, current_profile)
         
