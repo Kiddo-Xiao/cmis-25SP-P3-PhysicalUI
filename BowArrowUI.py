@@ -263,7 +263,7 @@ class BowArrowUI(QMainWindow):
         targets_form.addRow(self.lock_speed_checkbox)
         targets_form.addRow(self.lock_force_checkbox)
 
-        # UPDATE: Add User Reminder
+        # UPDATE: Add User Reminder 
         targets_form.addRow(QLabel("Reminder: Because of the mutual constraints you"))
         targets_form.addRow(QLabel("should ideally fix at most one parameter at a time."))
 

@@ -521,7 +521,7 @@ class BowArrowOptimizer:
             else:
                 # Softer penalty when speed isn't locked
                 speed_error = (launch_speed - target_speed)**2
-                
+                 
             if lock_force:
                 # UPDATE: Higher penalty for deviating from locked force target to garentee user deminds
                 force_error = 100.0 * (draw_force - target_force)**2
