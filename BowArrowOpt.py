@@ -225,7 +225,11 @@ class BowArrowOptimizer:
         self.grip_width = grip_width
 
         # Arrow's parameters must be calculated by bow's params to make them suitable!
-        arrow_length = self.calculate_optimal_arrow_length(bow_thickness, bow_curvature, grip_width)
+        # arrow_length = self.calculate_optimal_arrow_length(bow_thickness, bow_curvature, grip_width)
+        # Keep arrow length fixed to the existing self.arrow_len
+        # 
+        # gth (from STL)
+        arrow_length = self.arrow_length
         arrow_weight = self.calculate_optimal_arrow_weight(limb_stiffness, grip_width)
         tip_diameter = self.calculate_optimal_tip_diameter(limb_stiffness, grip_width)
         self.arrow_length = arrow_length
@@ -614,35 +618,18 @@ class BowArrowOptimizer:
             return 70.0 + (self.limb_stiffness - 0.6) * 30
 
     # TODO: User can not directly change arrow so this need to rewrite to fit the size of the bow!
+    # Check the bounding and make sure that the arrow length stays within the bow's limits
     def calculate_optimal_arrow_length(self, bow_thickness, bow_curvature, grip_width):
-        """Adaptively calculate arrow length based on bow parameters and clamping constraints"""
-        base_length = 60.0  # mm
+        """Arrow length is fixed to ensure it fits bow geometry."""
+        return self.arrow_length  # mm (default arrow length)
 
-        stiffness_factor = 1.0 - (self.limb_stiffness - 0.6) * 0.3
-        curvature_factor = 1.0 - (bow_curvature - 0.3) * 0.4
-        thickness_factor = 1.0 + (bow_thickness - 5.0) * 0.05
-        grip_factor = 1.0 + (grip_width - 25.0) * 0.01
-
-        profile_factor = {
-            'Child': 0.9,
-            'Adult': 1.0,
-            'Professional': 1.1
-        }.get(self.current_user, 1.0)
-
-        unclamped_length = base_length * stiffness_factor * curvature_factor * thickness_factor * grip_factor * profile_factor
-
-        # CLAMP ADJUSTMENT: Based on top-clamp geometry (max 75mm length support visually)
-        max_bow_supported_length = 75.0  # extracted from visual inspection of clamp-based design
-        length = min(unclamped_length, max_bow_supported_length)
-
-        return max(45.0, min(length, 80.0))  # final bounds
-
-
+    # TODO: change the arrow weight based on bow weight and stiffness
     def calculate_optimal_arrow_weight(self, limb_stiffness, grip_width):
         """Heuristic arrow weight calculator based on bow power and grip"""
         base_weight = 2.0  # g
         stiffness_factor = 1.0 + (limb_stiffness - 0.6) * 0.5
         grip_factor = 1.0 + (grip_width - 25.0) * 0.008
+        thickness_factor = 1.0 + (self.bow_thickness - 5.0) * 0.03
         length_factor = self.arrow_length / 60.0
         profile_factor = {
             'Child': 0.8,
@@ -650,25 +637,24 @@ class BowArrowOptimizer:
             'Professional': 1.25
         }.get(self.current_user, 1.0)
 
-        return round(base_weight * stiffness_factor * grip_factor * length_factor * profile_factor, 2)
+        return round(base_weight * stiffness_factor * grip_factor * thickness_factor * length_factor * profile_factor, 2)
 
-    
     def calculate_optimal_tip_diameter(self, limb_stiffness, grip_width):
-        """Tip diameter based on speed, grip control, and safety"""
+        """Tip diameter based on speed, grip control, bow size, and safety"""
         base_diameter = 8.0  # mm
         stiffness_factor = 1.0 - (limb_stiffness - 0.6) * 0.3
         grip_factor = 1.0 + (grip_width - 25.0) * 0.015
+        thickness_factor = 1.0 + (self.bow_thickness - 5.0) * 0.02
+        palm_factor = 1.0 - (self.palm_size - 90.0) * 0.002  # Reduce for smaller palms
         profile_factor = {
-            'Child': 1.3,        # Big, blunt tip for safety
+            'Child': 1.3,
             'Adult': 1.0,
-            'Professional': 0.85  # Sharper, smaller tip
+            'Professional': 0.85
         }.get(self.current_user, 1.0)
 
-        diameter = base_diameter * stiffness_factor * grip_factor * profile_factor
+        diameter = base_diameter * stiffness_factor * grip_factor * thickness_factor * palm_factor * profile_factor
         return round(min(max(diameter, 4.0), 12.0), 2)
 
-
-    # TODO: Need more reasonable calculation of performance scores
     def simulate_performance(self):
         """Simulate bow and arrow performance with current parameters"""
         # Calculate key performance metrics
