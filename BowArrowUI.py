@@ -241,18 +241,18 @@ class BowArrowUI(QMainWindow):
 
         # Launch speed slider and display
         self.launch_speed_slider = QSlider(Qt.Horizontal)
-        self.launch_speed_slider.setRange(10, 50)  # 1.0 to 5.0 m/s (scaled by 10)
-        self.launch_speed_slider.setValue(30)      # Default 3.0 m/s
-        self.launch_speed_target_label = QLabel("3.0 m/s")
+        self.launch_speed_slider.setRange(20, 70)  # 2.0 to 7.0 m/s (scaled by 10)
+        self.launch_speed_slider.setValue(40)      # Default 4.0 m/s
+        self.launch_speed_target_label = QLabel("4.0 m/s")
         self.launch_speed_slider.valueChanged.connect(self.update_launch_speed_label)
         targets_form.addRow("Target Launch Speed:", self.launch_speed_slider)
         targets_form.addRow("", self.launch_speed_target_label)
 
         # Draw force slider and display
         self.draw_force_slider = QSlider(Qt.Horizontal)
-        self.draw_force_slider.setRange(20, 70)    # 2.0 to 7.0 N (scaled by 10)
-        self.draw_force_slider.setValue(40)        # Default 4.0 N
-        self.draw_force_target_label = QLabel("4.0 N")
+        self.draw_force_slider.setRange(30, 290)    # 3.0 to 29.0 N (scaled by 10)
+        self.draw_force_slider.setValue(80)        # Default 8.0 N
+        self.draw_force_target_label = QLabel("8.0 N")
         self.draw_force_slider.valueChanged.connect(self.update_draw_force_label)
         targets_form.addRow("Target Draw Force:", self.draw_force_slider)
         targets_form.addRow("", self.draw_force_target_label)
