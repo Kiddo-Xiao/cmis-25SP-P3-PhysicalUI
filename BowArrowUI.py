@@ -37,11 +37,11 @@ class BowArrowUI(QMainWindow):
         on the physical calculations in the optimizer, for example: when we change our mathematical 
         methods to calculate the launch speed(or draw force), the min/max values might not be gotten
         if here we just naively use the min/max values of the bow's physical parameters '''
-        min_speed = self.optimizer.estimate_launch_speed(4.0, 0.2, 0.3, 35)  # Minimum parameters
-        max_speed = self.optimizer.estimate_launch_speed(7.0, 0.4, 0.9, 20)  # Maximum parameters
+        min_speed = self.optimizer.estimate_launch_speed(6.0, 0.2, 0.3, 45)  # Minimum parameters
+        max_speed = self.optimizer.estimate_launch_speed(12.0, 0.4, 0.9, 25)  # Maximum parameters
         
-        min_force = self.optimizer.estimate_draw_force(4.0, 0.2, 0.3, 20)    # Minimum parameters
-        max_force = self.optimizer.estimate_draw_force(7.0, 0.4, 0.9, 35)    # Maximum parameters
+        min_force = self.optimizer.estimate_draw_force(6.0, 0.2, 0.3, 45)    # Minimum parameters
+        max_force = self.optimizer.estimate_draw_force(12.0, 0.4, 0.9, 25)    # Maximum parameters
         
         # Add 10% margin on each side
         min_speed = min_speed * 0.9
