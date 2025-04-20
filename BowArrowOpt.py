@@ -190,7 +190,6 @@ class BowArrowOptimizer:
 
         return comfort_score
 
-
     def adjust_for_speed(self):
         """Adjust parameters based on preferred shooting speed"""
         profile = self.user_profiles[self.current_user]
@@ -491,7 +490,6 @@ class BowArrowOptimizer:
         
         self.apply_geometry_update()
 
-    # TODO: User can not directly change arrow so this need to rewrite to fit the size of the bow!
     def calculate_optimal_arrow_length(self, bow_thickness, bow_curvature):
         """Adaptively calculate arrow length based on bow parameters and user needs"""
         base_length = 60.0  # mm
@@ -511,27 +509,6 @@ class BowArrowOptimizer:
         length = base_length * stiffness_factor * curvature_factor * thickness_factor * profile_factor
         return max(45.0, min(length, 80.0))  # clamp between 45mm and 80mm
 
-    # def calculate_optimal_arrow_length(self, bow_thickness, bow_curvature):
-    #     """Calculate optimal arrow length based on bow parameters"""
-    #     base_length = 60.0  # mm
-        
-    #     # Thicker bows benefit from longer arrows
-    #     thickness_factor = bow_thickness / 5.0
-        
-    #     # More curved bows work better with shorter arrows
-    #     curvature_factor = 1.0 - (bow_curvature - 0.3) * 0.5
-        
-    #     # User profile adjustment
-    #     if self.current_user == 'Child':
-    #         profile_factor = 0.9
-    #     elif self.current_user == 'Professional':
-    #         profile_factor = 1.1
-    #     else:
-    #         profile_factor = 1.0
-            
-    #     return base_length * thickness_factor * curvature_factor * profile_factor
-
-    # TODO: User can not directly change arrow so this need to rewrite to fit the size of the bow!
     def calculate_optimal_arrow_weight(self, limb_stiffness):
         """Compute arrow weight based on bow's stiffness and user profile"""
         base_weight = 2.0  # g
@@ -548,24 +525,6 @@ class BowArrowOptimizer:
         weight = base_weight * stiffness_factor * length_factor * profile_factor
         return round(weight, 2)
 
-    # def calculate_optimal_arrow_weight(self, limb_stiffness):
-    #     """Calculate optimal arrow weight based on bow parameters"""
-    #     base_weight = 2.0  # g
-        
-    #     # Stiffer bows can launch heavier arrows
-    #     stiffness_factor = limb_stiffness / 0.6
-        
-    #     # User profile adjustment
-    #     if self.current_user == 'Child':
-    #         profile_factor = 0.8
-    #     elif self.current_user == 'Professional':
-    #         profile_factor = 1.2
-    #     else:
-    #         profile_factor = 1.0
-            
-    #     return base_weight * stiffness_factor * profile_factor
-
-    # TODO: User can not directly change arrow so this need to rewrite to fit the size of the bow!
     def calculate_optimal_tip_diameter(self, limb_stiffness):
         """Determine tip diameter based on stiffness and safety"""
         base_diameter = 8.0  # mm
@@ -582,23 +541,6 @@ class BowArrowOptimizer:
 
         diameter = base_diameter * stiffness_factor * curvature_penalty * profile_factor
         return round(min(max(diameter, 4.0), 12.0), 2)  # clamp to safe bounds
-
-    # def calculate_optimal_tip_diameter(self, limb_stiffness):
-    #     """Calculate optimal tip diameter based on stiffness and user profile"""
-    #     base_diameter = 8.0  # mm
-        
-    #     # Stiffer bows work well with smaller tips (better aerodynamics)
-    #     stiffness_factor = 1.0 - (limb_stiffness - 0.6) * 0.3
-        
-    #     # User profile safety factors
-    #     if self.current_user == 'Child':
-    #         safety_factor = 1.3  # Much larger tips for children
-    #     elif self.current_user == 'Professional':
-    #         safety_factor = 0.8  # Smaller tips for professionals
-    #     else:
-    #         safety_factor = 1.0
-            
-    #     return base_diameter * stiffness_factor * safety_factor
 
     # TODO: Need more reasonable calculation of performance scores
     def simulate_performance(self):
@@ -762,31 +704,3 @@ class BowArrowOptimizer:
             "supports": supports,
             "special_instructions": instructions
         }
-
-
-    # def get_print_settings(self):
-    #     """Get recommended print settings based on current parameters"""
-    #     if self.current_user == 'Child':
-    #         return {
-    #             'material': 'PLA or TPU',
-    #             'layer_height': '0.2mm',
-    #             'infill': '20%',
-    #             'supports': 'No',
-    #             'special_instructions': 'Print bow limbs with TPU for extra safety and flexibility'
-    #         }
-    #     elif self.current_user == 'Professional':
-    #         return {
-    #             'material': 'PETG or Nylon',
-    #             'layer_height': '0.12mm',
-    #             'infill': '30%',
-    #             'supports': 'No',
-    #             'special_instructions': 'Print bow at 45° angle for better layer adhesion and strength'
-    #         }
-    #     else:  # Adult
-    #         return {
-    #             'material': 'PLA or PETG',
-    #             'layer_height': '0.16mm',
-    #             'infill': '25%',
-    #             'supports': 'No',
-    #             'special_instructions': 'Standard printing orientation is recommended'
-    #         }
