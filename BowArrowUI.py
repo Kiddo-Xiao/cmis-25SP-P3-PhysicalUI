@@ -163,8 +163,8 @@ class BowArrowUI(QMainWindow):
         
         # Bow thickness
         self.thickness_spin = QDoubleSpinBox()
-        self.thickness_spin.setRange(4.0, 9.0)
-        self.thickness_spin.setValue(5.0)
+        self.thickness_spin.setRange(6.0, 12.0)
+        self.thickness_spin.setValue(8.0)
         self.thickness_spin.setSingleStep(0.5)
         self.thickness_spin.setSuffix(" mm")
         params_form.addRow("Bow Thickness:", self.thickness_spin)
@@ -185,8 +185,8 @@ class BowArrowUI(QMainWindow):
         
         # Grip width
         self.grip_width_spin = QDoubleSpinBox()
-        self.grip_width_spin.setRange(20.0, 35.0)
-        self.grip_width_spin.setValue(25.0)
+        self.grip_width_spin.setRange(25.0, 45.0)
+        self.grip_width_spin.setValue(34.0)
         self.grip_width_spin.setSingleStep(0.5)
         self.grip_width_spin.setSuffix(" mm")
         params_form.addRow("Grip Width:", self.grip_width_spin)

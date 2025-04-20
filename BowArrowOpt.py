@@ -12,7 +12,7 @@ class BowArrowOptimizer:
         self.components = self.model.split()
         
         # Default parameters of Bow
-        self.bow_thickness = 5.0       # mm
+        self.bow_thickness = 8.0       # mm
         self.bow_curvature = 0.3       # ratio
         self.limb_stiffness = 0.6      # ratio
         self.grip_width = 25.0         # mm
@@ -26,10 +26,10 @@ class BowArrowOptimizer:
         # User profiles with tailored parameters
         self.user_profiles = {
             'Child': {
-                'bow_thickness': 6.0,
+                'bow_thickness': 10.0,
                 'bow_curvature': 0.25,
                 'limb_stiffness': 0.4,
-                'grip_width': 30.0,
+                'grip_width': 40.0,
                 'arrow_length': 50.0,
                 'arrow_weight': 1.5,
                 'tip_diameter': 10.0,
@@ -41,10 +41,10 @@ class BowArrowOptimizer:
                 'grip_size_factor': 1.2
             },
             'Adult': {
-                'bow_thickness': 5.0,
+                'bow_thickness': 8.0,
                 'bow_curvature': 0.3,
                 'limb_stiffness': 0.6,
-                'grip_width': 25.0,
+                'grip_width': 34.0,
                 'arrow_length': 60.0,
                 'arrow_weight': 2.0,
                 'tip_diameter': 8.0,
@@ -56,10 +56,10 @@ class BowArrowOptimizer:
                 'grip_size_factor': 1.0
             },
             'Professional': {
-                'bow_thickness': 4.5,
+                'bow_thickness': 6.0,
                 'bow_curvature': 0.35,
                 'limb_stiffness': 0.75,
-                'grip_width': 22.0,
+                'grip_width': 25.0,
                 'arrow_length': 70.0,
                 'arrow_weight': 2.5,
                 'tip_diameter': 6.0,
@@ -241,9 +241,9 @@ class BowArrowOptimizer:
                 component.vertices = np.array(original_component.vertices)
         
         # Calculate scaling and adjustment factors
-        thickness_factor = self.bow_thickness / 5.0
+        thickness_factor = self.bow_thickness / 8.0
         curvature_factor = self.bow_curvature
-        grip_scale = self.grip_width / 25.0
+        grip_scale = self.grip_width / 34.0
         
         # Identify bow components (first component is bow body and second is arrow)
         bow_body_index = 0
@@ -407,7 +407,7 @@ class BowArrowOptimizer:
         
         return estimated_speed
 
-    def estimate_draw_force(self, bow_thickness, bow_curvature, limb_stiffness):
+    def estimate_draw_force(self, bow_thickness, bow_curvature, limb_stiffness, grip_width):
         """Estimate force required to fully draw the bow.
         
         Equation: F=S²*UTS
