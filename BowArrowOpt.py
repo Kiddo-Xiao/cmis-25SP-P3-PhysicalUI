@@ -4,6 +4,7 @@ from scipy.optimize import minimize
 import os
 import time
 import random
+import math
 
 class BowArrowOptimizer:
     def __init__(self, model_path):
@@ -12,7 +13,7 @@ class BowArrowOptimizer:
         self.components = self.model.split()
         
         # Default parameters of Bow
-        self.bow_thickness = 5.0       # mm
+        self.bow_thickness = 8.0       # mm
         self.bow_curvature = 0.3       # ratio
         self.limb_stiffness = 0.6      # ratio
         self.grip_width = 25.0         # mm
@@ -26,10 +27,10 @@ class BowArrowOptimizer:
         # User profiles with tailored parameters
         self.user_profiles = {
             'Child': {
-                'bow_thickness': 6.0,
+                'bow_thickness': 10.0,
                 'bow_curvature': 0.25,
                 'limb_stiffness': 0.4,
-                'grip_width': 30.0,
+                'grip_width': 40.0,
                 'arrow_length': 50.0,
                 'arrow_weight': 1.5,
                 'tip_diameter': 10.0,
@@ -41,10 +42,10 @@ class BowArrowOptimizer:
                 'grip_size_factor': 1.2
             },
             'Adult': {
-                'bow_thickness': 5.0,
+                'bow_thickness': 8.0,
                 'bow_curvature': 0.3,
                 'limb_stiffness': 0.6,
-                'grip_width': 25.0,
+                'grip_width': 34.0,
                 'arrow_length': 60.0,
                 'arrow_weight': 2.0,
                 'tip_diameter': 8.0,
@@ -56,10 +57,10 @@ class BowArrowOptimizer:
                 'grip_size_factor': 1.0
             },
             'Professional': {
-                'bow_thickness': 4.5,
+                'bow_thickness': 6.0,
                 'bow_curvature': 0.35,
                 'limb_stiffness': 0.75,
-                'grip_width': 22.0,
+                'grip_width': 25.0,
                 'arrow_length': 70.0,
                 'arrow_weight': 2.5,
                 'tip_diameter': 6.0,
@@ -241,9 +242,9 @@ class BowArrowOptimizer:
                 component.vertices = np.array(original_component.vertices)
         
         # Calculate scaling and adjustment factors
-        thickness_factor = self.bow_thickness / 5.0
+        thickness_factor = self.bow_thickness / 8.0
         curvature_factor = self.bow_curvature
-        grip_scale = self.grip_width / 25.0
+        grip_scale = self.grip_width / 34.0
         
         # Identify bow components (first component is bow body and second is arrow)
         bow_body_index = 0
@@ -386,46 +387,83 @@ class BowArrowOptimizer:
 
     # TODO: Need more precise calculation for speed
     def estimate_launch_speed(self, bow_thickness, bow_curvature, limb_stiffness, grip_width):
-        """Estimate arrow launch speed based on bow parameters"""
+        """Estimate arrow launch speed based on bow parameters.
+        
+        Energy is transferred to the arrow in the form of work (force * distance) over a distance of 1 mm. 
+        Then, by the work-energy theorem, the launch speed of the arrow (in m/s) is given by sqrt(v^2 + 2W/M), where:
+        v: velocity before work is applied (m/s)
+        W: work (Joules)
+        M: mass of arrow (kg)
+
+        Since the arrow is at rest before work is applied, v = 0 and the equation simplifies to sqrt(2W/M).
+
+        Curious to see the resultant estimated distance? See https://www.omnicalculator.com/physics/projectile-motion
+
+        Equation source: https://study.com/skill/learn/how-to-use-the-work-energy-theorem-to-calculate-the-final-velocity-of-an-object-explanation.html
+        """
+        distance_arrow_is_pushed = 0.001  # in m
+        force = self.estimate_draw_force(bow_thickness, bow_curvature, limb_stiffness, grip_width)  # in N
+        work = force * distance_arrow_is_pushed  # in J
+        mass_of_arrow = 0.001  # in kg
+        estimated_speed = math.sqrt(2 * work / mass_of_arrow)  # in m/s
+
         # Simple physics model: launch speed is proportional to:
         # - limb stiffness (higher stiffness -> more energy stored)
         # - bow thickness (thicker bow -> more force)
         # - bow curvature (more curve -> more energy stored)
         # - inversely related to grip width (narrower grip -> more focused energy transfer)
         
-        base_speed = 3.0  # m/s (baseline speed)
+        # base_speed = 3.0  # m/s (baseline speed)
         
-        grip_factor = 25.0 / grip_width  # Narrower grip increases speed (normalized to default 25mm)
+        # grip_factor = 34.0 / grip_width  # Narrower grip increases speed (normalized to default 34mm)
         
-        estimated_speed = (
-            base_speed * 
-            (bow_thickness / 5.0) * 
-            (1 + bow_curvature) * 
-            limb_stiffness *
-            (grip_factor ** 0.3)  # Apply grip factor with dampened effect
-        )
+        # estimated_speed = (
+        #     base_speed * 
+        #     (bow_thickness / 5.0) * 
+        #     (1 + bow_curvature) * 
+        #     limb_stiffness *
+        #     (grip_factor ** 0.3)  # Apply grip factor with dampened effect
+        # )
         
         return estimated_speed
-    
-    # TODO: Need more precise calculation for force
+
     def estimate_draw_force(self, bow_thickness, bow_curvature, limb_stiffness, grip_width):
-        """Estimate force required to fully draw the bow"""
+        """Estimate force required to fully draw the bow.
+        
+        The force required to deflect a single cantilever beam (in the direction of the force) is given by 3DEI/(L^3), where:
+        D: deflection/distance moved (mm)
+        E: Young's modulus (dependent on material properties) (N/mm^2)
+        I: area moment of inertia, which for a rectangular beam with a cross section of dimensions b * h, is given by b(h^3)/12 (mm^4)
+        L: length of the beam (mm)
+
+        For 2 * 10 = 20 beams, the total force is given by 60DEI/(L^3).
+        """
+        deflection = 10.5
+        youngs_modulus = 3.700550  # E for PLA at infill density of 100% and layer height of 0.20 mm
+        beam_thickness = 0.6
+        moment_of_inertia = bow_thickness * (beam_thickness ** 3) / 12  # the beams are 0.6mm thick
+        height_difference_between_beam_ends = 6  # in mm
+        beam_length = math.sqrt((grip_width ** 2) + (height_difference_between_beam_ends ** 2))
+
+        estimated_force = 60 * deflection * youngs_modulus * moment_of_inertia / (beam_length ** 3)
+
+        empirical_corrective_factor = 1000  # we are doing more deformation than the original equation expects
+
+        estimated_force = estimated_force * empirical_corrective_factor
+
         # Simple model for draw force:
         # - Proportional to thickness, stiffness
         # - Inversely proportional to flexibility
         # - Wider grip increases required force
         
-        base_force = 4.0  # N (baseline force)
+        # base_force = 4.0  # N (baseline force)
         
-        grip_factor = grip_width / 25.0  # Wider grip increases required force
-        
-        estimated_force = (
-            base_force * 
-            (bow_thickness / 5.0) * 
-            (1 + 0.5 * bow_curvature) * 
-            limb_stiffness *
-            (grip_factor ** 0.5)  # Apply grip factor with square root to dampen effect
-            )
+        # estimated_force = (
+        #     base_force * 
+        #     (bow_thickness / 5.0) * 
+        #     (1 + 0.5 * bow_curvature) * 
+        #     limb_stiffness
+        #     )
         
         return estimated_force
 
@@ -516,14 +554,14 @@ class BowArrowOptimizer:
             force_error = 0
             
             if lock_speed:
-                # UPDATE: Higher penalty for deviating from locked speed target to garentee user deminds
+                # UPDATE: Higher penalty for deviating from locked speed target to garentee user demands
                 speed_error = 100.0 * (launch_speed - target_speed)**2
             else:
                 # Softer penalty when speed isn't locked
                 speed_error = (launch_speed - target_speed)**2
                  
             if lock_force:
-                # UPDATE: Higher penalty for deviating from locked force target to garentee user deminds
+                # UPDATE: Higher penalty for deviating from locked force target to garentee user demands
                 force_error = 100.0 * (draw_force - target_force)**2
             else:
                 # Softer penalty when force isn't locked
@@ -535,7 +573,7 @@ class BowArrowOptimizer:
             # Calculate comfort based on physical parameters
             # Higher penalty for uncomfortable configurations
             palm_factor = self.palm_size / 90.0
-            grip_width_ideal = 25.0 * palm_factor
+            grip_width_ideal = 34.0 * palm_factor
             grip_comfort_penalty = 2.0 * ((grip_width - grip_width_ideal) / grip_width_ideal)**2
             
             # Total cost
@@ -553,10 +591,10 @@ class BowArrowOptimizer:
         
         # Define parameter bounds
         bounds = [
-            (4.0, 7.0),     # bow_thickness
+            (6.0, 12.0),     # bow_thickness
             (0.2, 0.4),     # bow_curvature
             (0.3, 0.9),     # limb_stiffness
-            (20.0, 35.0)    # grip_width - full range
+            (25.0, 45.0)    # grip_width
         ]
         
         # Run optimization
@@ -616,6 +654,7 @@ class BowArrowOptimizer:
 
         length = base_length * stiffness_factor * curvature_factor * thickness_factor * profile_factor * grip_factor
         return max(45.0, min(length, 80.0))  # clamp between 45mm and 80mm
+    
     def calculate_optimal_arrow_weight(self, limb_stiffness, grip_width):
         """Compute arrow weight based on bow's stiffness, grip width, and user profile"""
         base_weight = 2.0  # g
@@ -634,6 +673,7 @@ class BowArrowOptimizer:
 
         weight = base_weight * stiffness_factor * length_factor * profile_factor * grip_factor
         return round(weight, 2)
+    
     def calculate_optimal_tip_diameter(self, limb_stiffness, grip_width):
         """Determine tip diameter based on stiffness, grip width, and safety"""
         base_diameter = 8.0  # mm

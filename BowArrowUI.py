@@ -37,11 +37,11 @@ class BowArrowUI(QMainWindow):
         on the physical calculations in the optimizer, for example: when we change our mathematical 
         methods to calculate the launch speed(or draw force), the min/max values might not be gotten
         if here we just naively use the min/max values of the bow's physical parameters '''
-        min_speed = self.optimizer.estimate_launch_speed(4.0, 0.2, 0.3, 35)  # Minimum parameters
-        max_speed = self.optimizer.estimate_launch_speed(7.0, 0.4, 0.9, 20)  # Maximum parameters
+        min_speed = self.optimizer.estimate_launch_speed(6.0, 0.2, 0.3, 45)  # Minimum parameters
+        max_speed = self.optimizer.estimate_launch_speed(12.0, 0.4, 0.9, 25)  # Maximum parameters
         
-        min_force = self.optimizer.estimate_draw_force(4.0, 0.2, 0.3, 20)    # Minimum parameters
-        max_force = self.optimizer.estimate_draw_force(7.0, 0.4, 0.9, 35)    # Maximum parameters
+        min_force = self.optimizer.estimate_draw_force(6.0, 0.2, 0.3, 45)    # Minimum parameters
+        max_force = self.optimizer.estimate_draw_force(12.0, 0.4, 0.9, 25)    # Maximum parameters
         
         # Add 10% margin on each side
         min_speed = min_speed * 0.9
@@ -163,8 +163,8 @@ class BowArrowUI(QMainWindow):
         
         # Bow thickness
         self.thickness_spin = QDoubleSpinBox()
-        self.thickness_spin.setRange(4.0, 9.0)
-        self.thickness_spin.setValue(5.0)
+        self.thickness_spin.setRange(6.0, 12.0)
+        self.thickness_spin.setValue(8.0)
         self.thickness_spin.setSingleStep(0.5)
         self.thickness_spin.setSuffix(" mm")
         params_form.addRow("Bow Thickness:", self.thickness_spin)
@@ -185,8 +185,8 @@ class BowArrowUI(QMainWindow):
         
         # Grip width
         self.grip_width_spin = QDoubleSpinBox()
-        self.grip_width_spin.setRange(20.0, 35.0)
-        self.grip_width_spin.setValue(25.0)
+        self.grip_width_spin.setRange(25.0, 45.0)
+        self.grip_width_spin.setValue(34.0)
         self.grip_width_spin.setSingleStep(0.5)
         self.grip_width_spin.setSuffix(" mm")
         params_form.addRow("Grip Width:", self.grip_width_spin)
@@ -241,18 +241,18 @@ class BowArrowUI(QMainWindow):
 
         # Launch speed slider and display
         self.launch_speed_slider = QSlider(Qt.Horizontal)
-        self.launch_speed_slider.setRange(10, 50)  # 1.0 to 5.0 m/s (scaled by 10)
-        self.launch_speed_slider.setValue(30)      # Default 3.0 m/s
-        self.launch_speed_target_label = QLabel("3.0 m/s")
+        self.launch_speed_slider.setRange(20, 70)  # 2.0 to 7.0 m/s (scaled by 10)
+        self.launch_speed_slider.setValue(40)      # Default 4.0 m/s
+        self.launch_speed_target_label = QLabel("4.0 m/s")
         self.launch_speed_slider.valueChanged.connect(self.update_launch_speed_label)
         targets_form.addRow("Target Launch Speed:", self.launch_speed_slider)
         targets_form.addRow("", self.launch_speed_target_label)
 
         # Draw force slider and display
         self.draw_force_slider = QSlider(Qt.Horizontal)
-        self.draw_force_slider.setRange(20, 70)    # 2.0 to 7.0 N (scaled by 10)
-        self.draw_force_slider.setValue(40)        # Default 4.0 N
-        self.draw_force_target_label = QLabel("4.0 N")
+        self.draw_force_slider.setRange(30, 290)    # 3.0 to 29.0 N (scaled by 10)
+        self.draw_force_slider.setValue(80)        # Default 8.0 N
+        self.draw_force_target_label = QLabel("8.0 N")
         self.draw_force_slider.valueChanged.connect(self.update_draw_force_label)
         targets_form.addRow("Target Draw Force:", self.draw_force_slider)
         targets_form.addRow("", self.draw_force_target_label)
