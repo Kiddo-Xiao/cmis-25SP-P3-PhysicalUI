@@ -170,11 +170,11 @@ class BowArrowUI(QMainWindow):
         params_form.addRow("Bow Thickness:", self.thickness_spin)
         
         # UPDATE: hide Bow curvature
-        # self.curvature_spin = QDoubleSpinBox()
-        # self.curvature_spin.setRange(0.2, 0.4)
-        # self.curvature_spin.setValue(0.3)
-        # self.curvature_spin.setSingleStep(0.01)
-        # params_form.addRow("Bow Curvature:", self.curvature_spin)
+        self.curvature_spin = QDoubleSpinBox()
+        self.curvature_spin.setRange(0.2, 0.4)
+        self.curvature_spin.setValue(0.3)
+        self.curvature_spin.setSingleStep(0.01)
+        params_form.addRow("Bow Curvature:", self.curvature_spin)
       
         # Limb stiffness
         self.stiffness_spin = QDoubleSpinBox()
