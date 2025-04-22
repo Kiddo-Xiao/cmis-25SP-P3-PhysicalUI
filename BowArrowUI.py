@@ -124,7 +124,7 @@ class BowArrowUI(QMainWindow):
         config_tab = QWidget()
         results_tab = QWidget()
         tab_widget.addTab(config_tab, "Configure")
-        tab_widget.addTab(results_tab, "Results")
+        tab_widget.addTab(results_tab, "Optimize/Export")
         
         # First tab: Setup configure tab
         config_layout = QVBoxLayout(config_tab)
