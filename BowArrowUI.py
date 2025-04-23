@@ -3,7 +3,7 @@ import os
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
                            QHBoxLayout, QLabel, QComboBox, QSlider, QPushButton, 
                            QSpinBox, QDoubleSpinBox, QGroupBox, QTabWidget,
-                           QFormLayout, QFileDialog, QMessageBox)
+                           QFormLayout, QFileDialog, QMessageBox, QCheckBox)
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QPixmap, QImage
 import pyqtgraph.opengl as gl
