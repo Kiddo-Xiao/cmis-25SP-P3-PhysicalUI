@@ -1,7 +1,7 @@
 ﻿
 # P3: Generating physical interfaces Write-up
 
-cmis-25SP(05899)-Team-3: Christine Mendoza (), Fora Xiao ([weierx@andrew.cmu.edu](mailto:weierx@andrew.cmu.edu)), Nivedhitha Dhanasekaran ()
+cmis-25SP(05899)-Team-3: Christine Mendoza (), Flora Xiao ([weierx@andrew.cmu.edu](mailto:weierx@andrew.cmu.edu)), Nivedhitha Dhanasekaran ([ndhanase@andrew.cmu.edu](mailto:ndhanase@andrew.cmu.edu))
 
 Github: [https://github.com/Kiddo-Xiao/cmis-25SP-P3-PhysicalUI](https://github.com/Kiddo-Xiao/cmis-25SP-P3-PhysicalUI)
 
