@@ -1,7 +1,7 @@
 ﻿
 # P3: Generating physical interfaces Write-up
 
-cmis-25SP(05899)-Team-3: Christine Mendoza (), Flora Xiao ([weierx@andrew.cmu.edu](mailto:weierx@andrew.cmu.edu)), Nivedhitha Dhanasekaran ([ndhanase@andrew.cmu.edu](mailto:ndhanase@andrew.cmu.edu))
+cmis-25SP(05899)-Team-3: Christine Mendoza ([mendoza@cmu.edu](mailto:mendoza@cmu.edu)), Flora Xiao ([weierx@andrew.cmu.edu](mailto:weierx@andrew.cmu.edu)), Nivedhitha Dhanasekaran ([ndhanase@cs.cmu.edu](mailto:ndhanase@cs.cmu.edu))
 
 Github: [https://github.com/Kiddo-Xiao/cmis-25SP-P3-PhysicalUI](https://github.com/Kiddo-Xiao/cmis-25SP-P3-PhysicalUI)
 
@@ -48,17 +48,17 @@ Fabrication involved PLA or TPU with modular attachments and replaceable damping
 
 During our class proposal discussion, the stress relief toy emerged as a conceptually rich idea, but with a need for better defined mechanical goals. The professor introduced the notion of bistable mechanisms, referencing the deformation and release behavior seen in spring-like materials.
 
-They explained that computing properties like shooting speed would require full dynamic simulation, which could complicate implementation. Instead, the suggestion was to model elastic deformation geometrically, using the parameter delta L—the arc length difference between relaxed and tensioned states—as a proxy for stored force.
+The professor explained that computing properties like shooting speed would require full dynamic simulation, which could complicate implementation. Instead, the suggestion was to model elastic deformation geometrically, using the parameter delta L—the arc length difference between relaxed and tensioned states—as a proxy for stored force.
 
-This idea reframed our thinking. We decided to shift toward a handheld bow mechanism that incorporates bistable geometry and supports geometric optimization without needing physics simulation. Rather than optimizing velocity directly, we target print-safe geometry that encourages different deformation profiles.
+This idea reframed our thinking. We decided to shift toward a handheld bow mechanism that incorporates bistable geometry and supports geometric optimization without needing physics simulation. Rather than optimizing velocity directly, we target printable geometry that encourages different deformation profiles.
 
-We preserved the customization ideas from the stress toy but grounded them in a single, structured object. The bow's limbs, grip, and tension curve could be optimized per user profile. A fixed-size arrow slot ensures compatibility across designs. The professor also recommended printing and testing several versions early to empirically determine how geometric changes affect performance, and we adopted this approach for the rest of our workflow.
+We preserved the customization ideas from the initial ideas but grounded them in a single, structured object. The bow's limbs, grip, and tension curve could be optimized per user profile. A fixed-size arrow slot ensures compatibility across designs. The professor also recommended printing and testing several versions early to empirically determine how geometric changes affect performance, and we adopted this approach for the rest of our workflow.
 
-The final project combines the ergonomic intent of the toy, the mechanical precision of the mount, and the geometric tuning advised in class. It is also safe, fabricable, and demonstrable across different user profiles.
-
-I'll help you write the Section 2: Refinement and Implementation for your project write-up based on the provided document. This section will cover how you refined your bow toy design optimization system based on feedback and include the mathematical formulations for the optimization process.
+The final project combines the ergonomic intent of the toy, the mechanical precision of the mount, and the geometric tuning advised in class. It is also fabricable without assembly and customizable across different user profiles.
 
 ## Section 2: Refinement and Implementation
+
+We refined the project over 3 iterations. 
 
 ### 1. Initial Iteration: Bow Thickness Optimization
 
@@ -173,7 +173,7 @@ Our optimization now operates on the following key parameters:
     
 -   $x_3$: Limb stiffness (0.3-0.9)
     
--   $x_4$: Grip width (20-35mm)
+-   $x_4$: Grip width (20-36mm)
     
 
 ### Objective Function
@@ -207,7 +207,7 @@ Hard Constraints (Parameter Bounds):
     
 -   $0.3 \leq x_3 \leq 0.9$ (Limb stiffness)
     
--   $20 \leq x_4 \leq 35$ (Grip width)
+-   $20 \leq x_4 \leq 36$ (Grip width)
     
 
 These bounds vary by user profile, with narrower ranges for children and wider ranges for professionals.
@@ -215,34 +215,30 @@ These bounds vary by user profile, with narrower ranges for children and wider r
 Soft Constraints (Performance Penalties):
 
 -   Safety penalty: $S(X) = \max(0, v(X) - v_{max})^2 + \max(0, F(X) - F_{max})^2$  
-      
-    
 
--   $v(X)$ is the calculated launch speed
-    
--   $v_{max}$ is the maximum safe launch speed
-    
--   $F(X)$ is the calculated draw force
-    
--   $F_{max}$ is the maximum safe draw force
+    -   $v(X)$ is the calculated launch speed
+        
+    -   $v_{max}$ is the maximum safe launch speed
+        
+    -   $F(X)$ is the calculated draw force
+        
+    -   $F_{max}$ is the maximum safe draw force
     
 
 -   Comfort penalty: $C(X) = \alpha \cdot |x_4 - p \cdot f|^2$  
       
-    
 
--   $p$ is the palm size of the user
-    
--   $f$ is the grip size factor
-    
--   $\alpha$ is a scaling coefficient
+    -   $p$ is the palm size of the user
+        
+    -   $f$ is the grip size factor
+        
+    -   $\alpha$ is a scaling coefficient
     
 
 -   Accuracy penalty: $A(X) = \beta \cdot (x_3^{-1} + x_1^{-1})$  
       
-    
 
--   $\beta$ is a scaling coefficient
+    -   $\beta$ is a scaling coefficient
     
 
 ### Physics-Based Performance Models
@@ -388,21 +384,6 @@ Based on midterm feedback, we fundamentally transformed our optimization approac
 **![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXd7zkN3EYpYgsefeF4CPhSu4HpTONqFx48IokMJYK2qv9dIfnGGOxa0Zy4jfkw-B7P3P6kw4K3GRuen3hOTGBpXni0qKC-WzkH8Aj5AUYva2DdLwIWCq8QMX2doILMZdx-bZfXzlQ?key=AWBrnTtIwq-DtT_d6UNBm6yt)**
 **![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXf02kkpzZubpCzNiq7G_7fWuggt_AP1MATrDBmqbcFSp282xUnPbPrlGT7aWLs2d3eblrRCZh_PycxSuo5afieHJpl_7DaTzU-3QLMZmkFbh_EzXtZA50X4KxSMxfhA8bEcmCUHqw?key=AWBrnTtIwq-DtT_d6UNBm6yt)**
 
-### Improved Launch Speed Estimation
-
-We significantly enhanced our physics model for launch speed calculation by implementing:
-
--   Energy storage using Hooke's Law principles
-    
--   Energy transfer efficiency based on material properties
-    
--   Kinetic energy conversion (½mv²) for accurate velocity calculation
-    
--   Correction factors for bow geometry (thickness and curvature)
-    
-
-The new model accurately represents the physics of energy storage in the bow limbs and its conversion to kinetic energy in the arrow, accounting for material efficiency and geometric influences.
-
 ### Advanced Draw Force Calculation
 
 We implemented a sophisticated beam deflection model for draw force that includes:
@@ -415,25 +396,89 @@ We implemented a sophisticated beam deflection model for draw force that include
     
 -   Width and curvature correction factors
     
-
 This advanced model accounts for how the force increases non-linearly during the draw, varies with material properties, and depends on the bow's geometric characteristics.
+
+The force required to deflect a single cantilever beam (in the direction of the force, which cancels out the effect of mounting angle) is given by $$3DEI/(L^3)$$ 
+Where:
+- D: deflection/distance moved (mm)
+- E: Young's modulus (dependent on material properties) (N/mm^2)
+- I: area moment of inertia (mm^4), which for a rectangular beam with a cross section of dimensions b * h, is given by $$b(h^3)/12$$
+- L: length of the beam (mm)
+
+For 2 * 10 = 20 beams, the total force is can be summed up to $$60DEI/(L^3)$$.
+
+### Improved Launch Speed Estimation
+
+Energy is transferred to the arrow in the form of work (force * distance). Then, by the work-energy theorem, the launch speed of the arrow (in m/s) is given by $$\sqrt{v² + 2fD/M}$$ Where:
+
+- v: velocity before work is applied (m/s)
+- f: force applied (N) (calculated in the previous section)
+- D: distance arrow traveled (m)
+- M: mass of arrow (kg)
+
+Since the arrow is at rest before work is applied, v = 0 and the equation simplifies to $$\sqrt{2fD/M}$$
+
+Curious to see the resultant estimated distance? See [this online calculator](https://www.omnicalculator.com/physics/projectile-motion)
+
+Equation source [here](https://study.com/skill/learn/how-to-use-the-work-energy-theorem-to-calculate-the-final-velocity-of-an-object-explanation.html).
+
 
 ### Multi-Objective Performance Score Calculation
 
-We implemented a sophisticated scoring system that translates physical parameters into performance metrics:
+We use the following decision variables, constraints, and objective:
 
--   Projectile physics for flight distance calculation
-    
--   Multiple factors contributing to accuracy (thickness, stiffness, grip)
-    
--   Comfort evaluation based on grip ergonomics and draw force
-    
--   Safety assessment considering speed, thickness, and tip design
-    
--   Profile-specific weighted overall performance scores
-    
 
-This comprehensive evaluation system provides meaningful metrics for users while informing the optimization process about parameter trade-offs.
+### Decision Variables
+
+-   $x_1$: Bow thickness (4.0-7.0mm)
+    
+-   $x_2$: Bow curvature (0.2-0.4)
+    
+-   $x_3$: Limb stiffness (0.3-0.9)
+    
+-   $x_4$: Grip width (20-36mm)
+
+### Constraints
+
+Hard Constraints (Parameter Bounds):
+
+-   $4.0 \leq x_1 \leq 7.0$ (Bow thickness)
+    
+-   $0.2 \leq x_2 \leq 0.4$ (Bow curvature)
+    
+-   $0.3 \leq x_3 \leq 0.9$ (Limb stiffness)
+    
+-   $20 \leq x_4 \leq 36$ (Grip width)
+
+### Objective
+
+We minimize the following cost function:
+$$f(X) =  w_s \cdot S(X) + w_f \cdot F(X) + w_c \cdot C(X) $$
+
+Where:
+
+-   $X = [x_1, x_2, x_3, x_4]$ is the parameter vector
+    
+-   $S(X)$ is the squared error between desired and calculated speed
+
+-   $F(X)$ is the squared error between desired and calculated draw force
+    
+-   $C(X)$ is the comfort function $2.0 \cdot ((x_4 - t_4) / t_4)^2$
+    
+-   $w_s$, $w_f$, and $w_c$ are the weights for prioritizing speed, force, and comfort, respectively. (Note that $w_c$ is set to 1 while the set of possible values for $w_s$ and $w_f$ is {1, 100}. Users can select if they want to prioritize aiming for desired speed or desired draw force during optimization.)
+
+### Implementation
+As before, we used the L-BFGS-B algorithm (Limited-memory Broyden-Fletcher-Goldfarb-Shanno with Bounds) and the following libraries:
+
+-   NumPy: For numerical computations and array operations
+    
+-   SciPy: For optimization algorithms
+    
+-   Trimesh: For 3D mesh processing and STL export
+    
+-   PyQt5: For the graphical user interface
+    
+-   PyQtGraph: For 3D visualization
 
 ### Inverse Design Optimization
 
@@ -551,5 +596,6 @@ Design Recommendations:
 These findings reinforce the need for ergonomic adaptation and reinforce the value of inverse design as a powerful method for tailoring tangible interaction tools to diverse user needs.
 
 ## Use of AI assistants
-
-AI-assisted tools were utilized to enhance efficiency in code development and documentation. Co-pilot in VSCode was used for code auto-completion and optimization suggestions. Grammarly was employed to refine grammar and reword in Overleaf to improve clarity and readability.
+-   We used AI assistants for help understanding physics models and for outlining a structure for the code and the write-up.
+-   Using GPT-4o to generate a initial UI for our try-out proposal. After that we completed the UI based on the original framework with optimized logic for our final project and added many user-friendly optimizations. Only the initial framework was generated directly by the AI and is shown in the screenshots below, the subsequent work was done in person and is specified in the previous article.
+**![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXcCAqtcwWzbt3BVnWeSmZd1du7FcpKzIZKEl1lhX7p16AgqJIdovwhP4fdFEhHAQDV_jPsgRqM1mmO8jBAx_sgOhXrAkEeL6wqmcCaaPI-tjAc3oX5SWVP-vaJaTRawbq5r4xivZQ?key=UdNeR_klCihsejrSQYPhbfCf)**
