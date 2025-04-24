@@ -452,7 +452,7 @@ Hard Constraints (Parameter Bounds):
 
 Soft Constraints (Performance Penalties):
 
--   Accuracy penalty (speed and force): $A(X) = \beta \cdot (x_i - t_i)$  
+-   Accuracy penalty (speed and force): $A(X) = \beta \cdot (x_i - t_i)^2$  
 
     -   $\beta$ is a scaling coefficient
 
