@@ -25,10 +25,7 @@ class BowArrowUI(QMainWindow):
         
         # Setup UI components
         self.setup_ui()
-
-        # Set performance range based on physical constraints
-        self.update_performance_range()
-
+        
         # Initialize viewer with model
         self.update_model_view()
         
@@ -199,15 +196,10 @@ class BowArrowUI(QMainWindow):
         apply_params_btn.clicked.connect(self.apply_parameters)
         config_layout.addWidget(apply_params_btn)
         
-        # UPDATE: more reasonable UI layout
-        # Add simulate button
-        simulate_btn = QPushButton("Simulate Performance")
-        simulate_btn.clicked.connect(self.simulate_performance)
-        config_layout.addWidget(simulate_btn)
-        # # Optimize button
-        # optimize_btn = QPushButton("Optimize Design")
-        # optimize_btn.clicked.connect(self.optimize_design)
-        # config_layout.addWidget(optimize_btn)
+        # Optimize button
+        optimize_btn = QPushButton("Optimize Design")
+        optimize_btn.clicked.connect(self.optimize_design)
+        config_layout.addWidget(optimize_btn)
 
        # Second tab: Setup results tab
         results_layout = QVBoxLayout(results_tab)
@@ -285,6 +277,11 @@ class BowArrowUI(QMainWindow):
         
         results_layout.addWidget(export_group)
         
+        # Add simulate button
+        simulate_btn = QPushButton("Simulate Performance")
+        simulate_btn.clicked.connect(self.simulate_performance)
+        results_layout.addWidget(simulate_btn)
+        
         # Setup 3D view in right panel
         view_label = QLabel("3D Model View")
         view_label.setMaximumHeight(30)  # Fix a small height for text label
@@ -352,18 +349,23 @@ class BowArrowUI(QMainWindow):
         QMessageBox.information(self, "Parameters Applied", 
                               "Parameters have been applied to the model.")
     
-    # def optimize_design(self):
-    #     """Run the optimization algorithm"""
-    #     try:
-    #         self.optimizer.optimize_model()
-    #         self.update_parameter_displays()
-    #         self.update_model_view()
-    #         self.simulate_performance()  # Update performance metrics
-    #         QMessageBox.information(self, "Optimization Complete", 
-    #                               "Model has been optimized for the current profile.")
-    #     except Exception as e:
-    #         QMessageBox.critical(self, "Optimization Error", 
-    #                            f"Failed to optimize model: {str(e)}")
+    def optimize_design(self):
+        """Run the optimization algorithm"""
+        try:
+            # self.optimizer.optimize_model()
+            # Fix: Use optimize_for_performance instead of optimize_model
+            target_speed = self.optimizer.user_profiles[self.optimizer.current_user]['max_launch_speed']
+            target_force = self.optimizer.user_profiles[self.optimizer.current_user]['max_draw_force']
+            self.optimizer.optimize_for_performance(target_speed, target_force, lock_speed=True, lock_force=True)
+
+            self.update_parameter_displays()
+            self.update_model_view()
+            self.simulate_performance()  # Update performance metrics
+            QMessageBox.information(self, "Optimization Complete", 
+                                  "Model has been optimized for the current profile.")
+        except Exception as e:
+            QMessageBox.critical(self, "Optimization Error", 
+                               f"Failed to optimize model: {str(e)}")
     
     def update_parameter_displays(self):
         """Update UI elements with current optimizer parameters"""
@@ -390,11 +392,11 @@ class BowArrowUI(QMainWindow):
             self.draw_force_slider.setValue(int(results['draw_force'] * co.SLIDER_SCALE))
             
             QMessageBox.information(self, "Simulation Complete", 
-                                f"Overall Performance Score: {results['performance_score']:.1f}/100")
+                                  f"Overall Performance Score: {results['performance_score']:.1f}/100")
         except Exception as e:
             QMessageBox.critical(self, "Simulation Error", 
-                            f"Failed to simulate performance: {str(e)}")
-            
+                               f"Failed to simulate performance: {str(e)}")
+    
     def export_stl(self):
         """Export the current model to STL file"""
         try:
@@ -473,7 +475,8 @@ def main():
     os.makedirs("models", exist_ok=True)
     
     # Check if model file exists
-    model_path = 'models/Bow.stl'
+    # model_path = 'models/Bow.stl'
+    model_path = 'models/Bow_Arrow_Combined.stl'
     # model_path = 'models/Bow_Arrow_Combined.stl'
     if not os.path.exists(model_path):
         print(f"Warning: Model file not found at {model_path}")
