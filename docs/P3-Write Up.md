@@ -1,7 +1,7 @@
 ﻿
 # P3: Generating physical interfaces Write-up
 
-cmis-25SP(05899)-Team-3: Christine Mendoza (), Fora Xiao ([weierx@andrew.cmu.edu](mailto:weierx@andrew.cmu.edu)), Nivedhitha Dhanasekaran ()
+cmis-25SP(05899)-Team-3: Christine Mendoza ([mendoza@cmu.edu](mailto:mendoza@cmu.edu)), Flora Xiao ([weierx@andrew.cmu.edu](mailto:weierx@andrew.cmu.edu)), Nivedhitha Dhanasekaran ([ndhanase@cs.cmu.edu](mailto:ndhanase@cs.cmu.edu))
 
 Github: [https://github.com/Kiddo-Xiao/cmis-25SP-P3-PhysicalUI](https://github.com/Kiddo-Xiao/cmis-25SP-P3-PhysicalUI)
 
@@ -48,15 +48,21 @@ Fabrication involved PLA or TPU with modular attachments and replaceable damping
 
 During our class proposal discussion, the stress relief toy emerged as a conceptually rich idea, but with a need for better defined mechanical goals. The professor introduced the notion of bistable mechanisms, referencing the deformation and release behavior seen in spring-like materials.
 
-They explained that computing properties like shooting speed would require full dynamic simulation, which could complicate implementation. Instead, the suggestion was to model elastic deformation geometrically, using the parameter delta L—the arc length difference between relaxed and tensioned states—as a proxy for stored force.
+The professor explained that computing properties like shooting speed would require full dynamic simulation, which could complicate implementation. Instead, the suggestion was to model elastic deformation geometrically, using the parameter delta L—the arc length difference between relaxed and tensioned states—as a proxy for stored force.
 
-This idea reframed our thinking. We decided to shift toward a handheld bow mechanism that incorporates bistable geometry and supports geometric optimization without needing physics simulation. Rather than optimizing velocity directly, we target print-safe geometry that encourages different deformation profiles.
+This idea reframed our thinking. We decided to shift toward a handheld bow mechanism that incorporates bistable geometry and supports geometric optimization without needing physics simulation. Rather than optimizing velocity directly, we target printable geometry that encourages different deformation profiles.
 
-We preserved the customization ideas from the stress toy but grounded them in a single, structured object. The bow's limbs, grip, and tension curve could be optimized per user profile. A fixed-size arrow slot ensures compatibility across designs. The professor also recommended printing and testing several versions early to empirically determine how geometric changes affect performance, and we adopted this approach for the rest of our workflow.
+We preserved the customization ideas from the initial ideas but grounded them in a single, structured object. The bow's limbs, grip, and tension curve could be optimized per user profile. A fixed-size arrow slot ensures compatibility across designs. The professor also recommended printing and testing several versions early to empirically determine how geometric changes affect performance, and we adopted this approach for the rest of our workflow.
 
-The final project combines the ergonomic intent of the toy, the mechanical precision of the mount, and the geometric tuning advised in class. It is also safe, fabricable, and demonstrable across different user profiles.
+The final project combines the ergonomic intent of the toy, the mechanical precision of the mount, and the geometric tuning advised in class. It is also fabricable without assembly and customizable across different user profiles.
 
 ## Section 2: Refinement and Implementation
+
+We refined the project over 3 iterations. Feel free to jump to each iteration below.
+
+- [Iteration 1](#1-initial-iteration-bow-thickness-optimization)
+- [Iteration 2](#2-middle-iteration-advanced-optimization--ui)
+- [Iteration 3](#final-iteration-inverse-design--optimized-ui)
 
 ### 1. Initial Iteration: Bow Thickness Optimization
 
@@ -213,34 +219,30 @@ These bounds vary by user profile, with narrower ranges for children and wider r
 Soft Constraints (Performance Penalties):
 
 -   Safety penalty: $S(X) = \max(0, v(X) - v_{max})^2 + \max(0, F(X) - F_{max})^2$  
-      
-    
 
--   $v(X)$ is the calculated launch speed
-    
--   $v_{max}$ is the maximum safe launch speed
-    
--   $F(X)$ is the calculated draw force
-    
--   $F_{max}$ is the maximum safe draw force
+    -   $v(X)$ is the calculated launch speed
+        
+    -   $v_{max}$ is the maximum safe launch speed
+        
+    -   $F(X)$ is the calculated draw force
+        
+    -   $F_{max}$ is the maximum safe draw force
     
 
 -   Comfort penalty: $C(X) = \alpha \cdot |x_4 - p \cdot f|^2$  
       
-    
 
--   $p$ is the palm size of the user
-    
--   $f$ is the grip size factor
-    
--   $\alpha$ is a scaling coefficient
+    -   $p$ is the palm size of the user
+        
+    -   $f$ is the grip size factor
+        
+    -   $\alpha$ is a scaling coefficient
     
 
 -   Accuracy penalty: $A(X) = \beta \cdot (x_3^{-1} + x_1^{-1})$  
       
-    
 
--   $\beta$ is a scaling coefficient
+    -   $\beta$ is a scaling coefficient
     
 
 ### Physics-Based Performance Models
@@ -395,8 +397,6 @@ We significantly enhanced our physics model for launch speed calculation by impl
 -   Energy transfer efficiency based on material properties
     
 -   Kinetic energy conversion (½mv²) for accurate velocity calculation
-    
--   Correction factors for bow geometry (thickness and curvature)
     
 
 The new model accurately represents the physics of energy storage in the bow limbs and its conversion to kinetic energy in the arrow, accounting for material efficiency and geometric influences.
