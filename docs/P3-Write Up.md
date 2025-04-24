@@ -58,11 +58,7 @@ The final project combines the ergonomic intent of the toy, the mechanical preci
 
 ## Section 2: Refinement and Implementation
 
-We refined the project over 3 iterations. Feel free to jump to each iteration below.
-
-- [Iteration 1](#1-initial-iteration-bow-thickness-optimization)
-- [Iteration 2](#2-middle-iteration-advanced-optimization--ui)
-- [Iteration 3](#final-iteration-inverse-design--optimized-ui)
+We refined the project over 3 iterations. 
 
 ### 1. Initial Iteration: Bow Thickness Optimization
 
@@ -177,7 +173,7 @@ Our optimization now operates on the following key parameters:
     
 -   $x_3$: Limb stiffness (0.3-0.9)
     
--   $x_4$: Grip width (20-35mm)
+-   $x_4$: Grip width (20-36mm)
     
 
 ### Objective Function
@@ -211,7 +207,7 @@ Hard Constraints (Parameter Bounds):
     
 -   $0.3 \leq x_3 \leq 0.9$ (Limb stiffness)
     
--   $20 \leq x_4 \leq 35$ (Grip width)
+-   $20 \leq x_4 \leq 36$ (Grip width)
     
 
 These bounds vary by user profile, with narrower ranges for children and wider ranges for professionals.
@@ -388,19 +384,6 @@ Based on midterm feedback, we fundamentally transformed our optimization approac
 **![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXd7zkN3EYpYgsefeF4CPhSu4HpTONqFx48IokMJYK2qv9dIfnGGOxa0Zy4jfkw-B7P3P6kw4K3GRuen3hOTGBpXni0qKC-WzkH8Aj5AUYva2DdLwIWCq8QMX2doILMZdx-bZfXzlQ?key=AWBrnTtIwq-DtT_d6UNBm6yt)**
 **![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXf02kkpzZubpCzNiq7G_7fWuggt_AP1MATrDBmqbcFSp282xUnPbPrlGT7aWLs2d3eblrRCZh_PycxSuo5afieHJpl_7DaTzU-3QLMZmkFbh_EzXtZA50X4KxSMxfhA8bEcmCUHqw?key=AWBrnTtIwq-DtT_d6UNBm6yt)**
 
-### Improved Launch Speed Estimation
-
-We significantly enhanced our physics model for launch speed calculation by implementing:
-
--   Energy storage using Hooke's Law principles
-    
--   Energy transfer efficiency based on material properties
-    
--   Kinetic energy conversion (½mv²) for accurate velocity calculation
-    
-
-The new model accurately represents the physics of energy storage in the bow limbs and its conversion to kinetic energy in the arrow, accounting for material efficiency and geometric influences.
-
 ### Advanced Draw Force Calculation
 
 We implemented a sophisticated beam deflection model for draw force that includes:
@@ -413,25 +396,89 @@ We implemented a sophisticated beam deflection model for draw force that include
     
 -   Width and curvature correction factors
     
-
 This advanced model accounts for how the force increases non-linearly during the draw, varies with material properties, and depends on the bow's geometric characteristics.
+
+The force required to deflect a single cantilever beam (in the direction of the force, which cancels out the effect of mounting angle) is given by $$3DEI/(L^3)$$ 
+Where:
+- D: deflection/distance moved (mm)
+- E: Young's modulus (dependent on material properties) (N/mm^2)
+- I: area moment of inertia (mm^4), which for a rectangular beam with a cross section of dimensions b * h, is given by $$b(h^3)/12$$
+- L: length of the beam (mm)
+
+For 2 * 10 = 20 beams, the total force is can be summed up to $$60DEI/(L^3)$$.
+
+### Improved Launch Speed Estimation
+
+Energy is transferred to the arrow in the form of work (force * distance). Then, by the work-energy theorem, the launch speed of the arrow (in m/s) is given by $$\sqrt{v² + 2fD/M}$$ Where:
+
+- v: velocity before work is applied (m/s)
+- f: force applied (N) (calculated in the previous section)
+- D: distance arrow traveled (m)
+- M: mass of arrow (kg)
+
+Since the arrow is at rest before work is applied, v = 0 and the equation simplifies to $$\sqrt{2fD/M}$$
+
+Curious to see the resultant estimated distance? See [this online calculator](https://www.omnicalculator.com/physics/projectile-motion)
+
+Equation source [here](https://study.com/skill/learn/how-to-use-the-work-energy-theorem-to-calculate-the-final-velocity-of-an-object-explanation.html).
+
 
 ### Multi-Objective Performance Score Calculation
 
-We implemented a sophisticated scoring system that translates physical parameters into performance metrics:
+We use the following decision variables, constraints, and objective:
 
--   Projectile physics for flight distance calculation
-    
--   Multiple factors contributing to accuracy (thickness, stiffness, grip)
-    
--   Comfort evaluation based on grip ergonomics and draw force
-    
--   Safety assessment considering speed, thickness, and tip design
-    
--   Profile-specific weighted overall performance scores
-    
 
-This comprehensive evaluation system provides meaningful metrics for users while informing the optimization process about parameter trade-offs.
+### Decision Variables
+
+-   $x_1$: Bow thickness (4.0-7.0mm)
+    
+-   $x_2$: Bow curvature (0.2-0.4)
+    
+-   $x_3$: Limb stiffness (0.3-0.9)
+    
+-   $x_4$: Grip width (20-36mm)
+
+### Constraints
+
+Hard Constraints (Parameter Bounds):
+
+-   $4.0 \leq x_1 \leq 7.0$ (Bow thickness)
+    
+-   $0.2 \leq x_2 \leq 0.4$ (Bow curvature)
+    
+-   $0.3 \leq x_3 \leq 0.9$ (Limb stiffness)
+    
+-   $20 \leq x_4 \leq 36$ (Grip width)
+
+### Objective
+
+We minimize the following cost function:
+$$f(X) =  w_s \cdot S(X) + w_f \cdot F(X) + w_c \cdot C(X) $$
+
+Where:
+
+-   $X = [x_1, x_2, x_3, x_4]$ is the parameter vector
+    
+-   $S(X)$ is the squared error between desired and calculated speed
+
+-   $F(X)$ is the squared error between desired and calculated draw force
+    
+-   $C(X)$ is the comfort function $2.0 \cdot ((x_4 - t_4) / t_4)^2$
+    
+-   $w_s$, $w_f$, and $w_c$ are the weights for prioritizing speed, force, and comfort, respectively. (Note that $w_c$ is set to 1 while the set of possible values for $w_s$ and $w_f$ is {1, 100}. Users can select if they want to prioritize aiming for desired speed or desired draw force during optimization.)
+
+### Implementation
+As before, we used the L-BFGS-B algorithm (Limited-memory Broyden-Fletcher-Goldfarb-Shanno with Bounds) and the following libraries:
+
+-   NumPy: For numerical computations and array operations
+    
+-   SciPy: For optimization algorithms
+    
+-   Trimesh: For 3D mesh processing and STL export
+    
+-   PyQt5: For the graphical user interface
+    
+-   PyQtGraph: For 3D visualization
 
 ### Inverse Design Optimization
 
@@ -485,6 +532,6 @@ Collect relevant data, i.e., quantitative data of a relevant and reasonable task
 
 Discuss the results and any design recommendation for future improvements in a brief but substantive way
 
-  
 
 ## Use of AI assistants
+We used AI assistants for help understanding physics models and for outlining a structure for the code and the write-up.
