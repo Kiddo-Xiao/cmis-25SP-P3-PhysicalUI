@@ -1,7 +1,7 @@
 ﻿
 # P3: Generating physical interfaces Write-up
 
-cmis-25SP(05899)-Team-3: Christine Mendoza (), Fora Xiao ([weierx@andrew.cmu.edu](mailto:weierx@andrew.cmu.edu)), Nivedhitha Dhanasekaran ()
+cmis-25SP(05899)-Team-3: Christine Mendoza (), Flora Xiao ([weierx@andrew.cmu.edu](mailto:weierx@andrew.cmu.edu)), Nivedhitha Dhanasekaran ()
 
 Github: [https://github.com/Kiddo-Xiao/cmis-25SP-P3-PhysicalUI](https://github.com/Kiddo-Xiao/cmis-25SP-P3-PhysicalUI)
 
@@ -490,3 +490,5 @@ Discuss the results and any design recommendation for future improvements in a b
   
 
 ## Use of AI assistants
+-   Using GPT-4o to generate a initial UI for our try-out proposal. After that we completed the UI based on the original framework with optimized logic for our final project and added many user-friendly optimizations. Only the initial framework was generated directly by the AI and is shown in the screenshots below, the subsequent work was done in person and is specified in the previous article.
+**![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXcCAqtcwWzbt3BVnWeSmZd1du7FcpKzIZKEl1lhX7p16AgqJIdovwhP4fdFEhHAQDV_jPsgRqM1mmO8jBAx_sgOhXrAkEeL6wqmcCaaPI-tjAc3oX5SWVP-vaJaTRawbq5r4xivZQ?key=UdNeR_klCihsejrSQYPhbfCf)**
