@@ -475,18 +475,81 @@ Through this iterative development process, we've transformed a simple parameter
 
 ## Section 3: User evaluation
 
-### Data
+We conducted a user study with four participants (u1–u4), each of whom interacted with three different color-coded versions of the bow prototype (Blue, White, and Orange). The evaluation focused on both **quantitative performance** (measured arrow distance) and **qualitative feedback** (comfort, usability, and improvement suggestions). The feedback collected can be found [here](https://docs.google.com/spreadsheets/d/1ZxMuzDtRV6plpMQhiNMnaxgqz51GK16Vdoxl-7UyqI8/edit?usp=sharing).
 
-Collect relevant data, i.e., quantitative data of a relevant and reasonable task of your choice, and qualitative data as feedback on usability or similar.
+### 3.1 Quantitative Results
 
-  
+The table below summarizes the expected versus actual arrow flight distances, along with the calculated distance error percentage for each prototype per user:
 
-  
+| User | Version | Expected Distance (cm) | Actual Distance (cm) | Error (%) |
+|------|---------|-------------------------|-----------------------|-----------|
+| u1   | Blue    | 388                     | 299                   | 22.94     |
+| u1   | White   | 278                     | 419                   | 50.72     |
+| u1   | Orange  | 309                     | 199                   | 35.60     |
+| u2   | Blue    | 388                     | 310                   | 20.10     |
+| u2   | White   | 278                     | 460                   | 65.47     |
+| u2   | Orange  | 309                     | 214                   | 30.74     |
+| u3   | Blue    | 388                     | 492                   | 26.80     |
+| u3   | White   | 278                     | 489                   | 75.90     |
+| u3   | Orange  | 309                     | 160                   | 48.22     |
+| u4   | Blue    | 388                     | 520                   | 34.02     |
+| u4   | White   | 278                     | 540                   | 94.24     |
+| u4   | Orange  | 309                     | 153                   | 50.49     |
 
-### Results
+**Summary Statistics:**
 
-Discuss the results and any design recommendation for future improvements in a brief but substantive way
+- **Mean Error (%)**:
+  - Blue: 25.47%
+  - White: 71.08%
+  - Orange: 41.26%
 
-  
+- **Best Performing (Lowest Error):** Blue version
+- **Most Overshot (Highest Error):** White version (tended to overshoot dramatically)
+
+These results highlight that while Blue performed most consistently across users, the White version often overshot target expectations, likely due to excess stored energy or ease of deformation. Orange had more variability and was harder to press.
+
+### 3.2 Qualitative Results
+
+#### Comfort Feedback:
+
+- **Blue:** Frequently cited as the easiest to press. Participants found it fun and intuitive.
+- **White:** Gave better distance but was harder to draw. Felt more powerful but also more difficult.
+- **Orange:** Generally reported as hardest to press; some users mentioned improvement after repeated use.
+
+#### Usability and Suggestions:
+
+- **UI Comments:**
+  - Tabs were confusing; simpler control layout was preferred.
+  - Tooltips were helpful but need expansion.
+  - Holding orientation, aiming direction, and snapping angle should be more clearly indicated.
+
+- **Physical Design Suggestions:**
+  - Add visual indicators or printed arrows to aid usage.
+  - Introduce a cushioning layer to prevent injury from fast launches.
+  - Suggest using finger tape or padding to avoid nail scratches or pinching.
+  - Rounded arrow tip for child-safe design was appreciated by participants.
+
+The Blue version emerged as the most balanced design in terms of distance accuracy and ease of use. However, the White version achieved the longest distances and may be better suited for more advanced or adult users. Participants expressed a desire for clearer guidance on usage and more ergonomic features. These insights will inform our final refinements, including UI simplification and safer arrow tip modifications for children.
+
+## Results
+
+The user study demonstrated that physical parameter tuning via inverse design can significantly impact both usability and performance of 3D-printed interactive objects. Among the three bow prototypes tested, the Blue version struck the best balance between comfort and performance, while the White version achieved greater distances but at the cost of increased difficulty in operation.
+
+Key Takeaways:
+
+- High-performance designs (e.g., White) may compromise comfort and safety, especially for novice users.
+- Subjective comfort ratings aligned well with optimized stiffness and grip values for each user.
+- Design heuristics for child safety (e.g., tip rounding, reduced stiffness) were perceived as helpful and should be extended to adult use cases as optional features.
+
+Design Recommendations:
+
+- Default to moderate stiffness values unless explicitly overridden by the user.
+- Augment the digital interface with contextual instructions, safety warnings, and a usage demo.
+- Introduce modular or swappable grips to accommodate varying palm sizes and interaction styles.
+- Simulate manufacturing variation more explicitly in the optimization loop to better match real-world outcomes.
+
+These findings reinforce the need for ergonomic adaptation and reinforce the value of inverse design as a powerful method for tailoring tangible interaction tools to diverse user needs.
 
 ## Use of AI assistants
+
+AI-assisted tools were utilized to enhance efficiency in code development and documentation. Co-pilot in VSCode was used for code auto-completion and optimization suggestions. Grammarly was employed to refine grammar and reword in Overleaf to improve clarity and readability.
