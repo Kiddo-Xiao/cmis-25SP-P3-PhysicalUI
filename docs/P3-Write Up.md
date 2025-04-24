@@ -377,7 +377,7 @@ This scoring system ensures that the optimization prioritizes different aspects 
   
   
 
-### Final Iteration: Inverse Design + Optimized UI
+### 3. Final Iteration: Inverse Design + Optimized UI
 
 Based on midterm feedback, we fundamentally transformed our optimization approach in the final version. Instead of having users directly modify low-level parameters, we implemented a true inverse design system where users specify desired performance outcomes (like shooting distance and draw force), and our system determines the optimal physical parameters to achieve these results.
 **![](https://lh7-rt.googleusercontent.com/docsz/AD_4nXd454trdZ5M68n4IZOx-SNYC5ADHYNfc75k4Hyc_ZefR8YdNlfA7JJhCil8FaEg58uCRE8VGP8qHDuS0hdm6iDM7W-IR-abR4_eD-pAxUs9As7WagjUE3AN08l9mhDzpkg2GWEa?key=AWBrnTtIwq-DtT_d6UNBm6yt)**
