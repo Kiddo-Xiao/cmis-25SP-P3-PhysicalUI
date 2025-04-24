@@ -56,8 +56,6 @@ We preserved the customization ideas from the stress toy but grounded them in a 
 
 The final project combines the ergonomic intent of the toy, the mechanical precision of the mount, and the geometric tuning advised in class. It is also safe, fabricable, and demonstrable across different user profiles.
 
-I'll help you write the Section 2: Refinement and Implementation for your project write-up based on the provided document. This section will cover how you refined your bow toy design optimization system based on feedback and include the mathematical formulations for the optimization process.
-
 ## Section 2: Refinement and Implementation
 
 ### 1. Initial Iteration: Bow Thickness Optimization
