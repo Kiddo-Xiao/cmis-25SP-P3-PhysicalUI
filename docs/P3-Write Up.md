@@ -450,6 +450,23 @@ Hard Constraints (Parameter Bounds):
     
 -   $20 \leq x_4 \leq 36$ (Grip width)
 
+Soft Constraints (Performance Penalties):
+
+-   Accuracy penalty (speed and force): $A(X) = \beta \cdot (x_i - t_i)$  
+
+    -   $\beta$ is a scaling coefficient
+
+    -   $t_i$ is the target value
+
+-   Comfort penalty: $C(X) = \alpha \cdot |x_4 - p \cdot f|^2$  
+      
+    -   $p$ is the palm size of the user
+        
+    -   $f$ is the grip size factor
+        
+    -   $\alpha$ is a scaling coefficient
+    
+
 ### Objective
 
 We minimize the following cost function:
@@ -463,9 +480,9 @@ Where:
 
 -   $F(X)$ is the squared error between desired and calculated draw force
     
--   $C(X)$ is the comfort function $2.0 \cdot ((x_4 - t_4) / t_4)^2$
+-   $C(X)$ is the comfort function $((x_4 - t_4) / t_4)^2$
     
--   $w_s$, $w_f$, and $w_c$ are the weights for prioritizing speed, force, and comfort, respectively. (Note that $w_c$ is set to 1 while the set of possible values for $w_s$ and $w_f$ is {1, 100}. Users can select if they want to prioritize aiming for desired speed or desired draw force during optimization.)
+-   $w_s$, $w_f$, and $w_c$ are the weights for prioritizing speed, force, and comfort, respectively. (Note that $w_c$ is set to 2.0 while the set of possible values for $w_s$ and $w_f$ is {1, 100}. Users can select if they want to prioritize aiming for desired speed or desired draw force during optimization.)
 
 ### Implementation
 As before, we used the L-BFGS-B algorithm (Limited-memory Broyden-Fletcher-Goldfarb-Shanno with Bounds) and the following libraries:
